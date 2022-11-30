@@ -8,7 +8,7 @@ sysprak-client: ${SOURCE}
 	$(CC) $(FLAGS) -o $@ ${SOURCE}
 
 debug:	${SOURCE}
-	$(CC) $(FLAGS) -o $@  ${SOURCE} -g
+	$(CC) $(FLAGS) -o $@ ${SOURCE} -g
 
 clean:
-	rm -f *.o ./sysprak-client
+	rm -f *.o ./sysprak-client.out

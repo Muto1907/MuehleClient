@@ -11,4 +11,4 @@ debug:	${SOURCE}
 	$(CC) $(FLAGS) -o $@ ${SOURCE} -g
 
 clean:
-	rm -f *.o ./sysprak-client.out
+	rm -f *.o ./sysprak-client

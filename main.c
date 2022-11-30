@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include "errorHandling.h"
 
 #define GAMEKINDNAME "NMMorris"
 #define PORTNUMBER 1357
@@ -16,62 +17,11 @@ void printAnweisung(){
     printf("-p gewünschte Spielernummer\n");
 }
 
-
-int main(int argc,char**argv){
-
- long long game_id=0;
-    unsigned int playernumber=0;
-    int option;
-
-    while((option = getopt(argc, argv, "g:p:")) != -1){
-        switch(option){
-            case 'g':
-            game_id = atoll(optarg);
-            break;
-            case 'p':
-            playernumber = atoi(optarg);
-            break;
-            default:
-            printAnweisung();
-            return 0;
-        }
-    }
-
-    // Testet, ob Game-ID 13 stellen hat
-    int counter = 1;
-    long long zahl = game_id;
-    while(zahl > 9){
-        zahl /= 10;
-        counter++;
-    }
-
-    if(counter != 13){
-        printf("Ungültige Game-ID.\n");
-        printAnweisung();
-        return -1;
-    }
-
-    //Testet ob Spielernummer 1 oder 2 ist 
-    if(playernumber < 1 || playernumber > 2){
-        printf("Ungültige Spielernummer.\n");
-        printAnweisung();
-        return -1;
-    }
-
-
-    //Preparing connection to server "sysprak.priv.lab.nm.ifi.lmu.de"
-    int socketfd = getSocketDescriptorAndConnect();
-    //TODO error handling for socketfd == -1
-
-    performConnection(socketfd, game_id);
-
-    return 0;
-}
-
-/*getSocketDescriptorAndConnect creates a socket and tries to connect to the LMU server.
-* returns socket file descriptor socketfd upon success, otherwise -1
-*/
 int getSocketDescriptorAndConnect(){
+
+    return -1;
+
+#if 0
     int socketfd;
 
     struct sockaddr_in address;
@@ -126,4 +76,69 @@ int getSocketDescriptorAndConnect(){
     }
 
     return socketfd;
+#endif
 }
+
+void performConnection(int socketfd, long long game_id)
+{
+
+}
+
+int main(int argc,char**argv){
+
+    if (argc <= 1)
+    {
+        printAnweisung();
+        return -1;
+    }
+    
+    long long game_id=0;
+    unsigned int playernumber=0;
+    int option;
+
+    while((option = getopt(argc, argv, "g:p:")) != -1){
+        switch(option){
+            case 'g':
+            game_id = atoll(optarg);
+            break;
+            case 'p':
+            playernumber = atoi(optarg);
+            break;
+            default:
+            printAnweisung();
+            return 0;
+        }
+    }
+
+    // Testet, ob Game-ID 13 stellen hat
+    int counter = 1;
+    long long zahl = game_id;
+    while(zahl > 9){
+        zahl /= 10;
+        counter++;
+    }
+
+    if(counter != 13){
+        errPrintInvalidParam("Game-ID");
+        printAnweisung();
+        return -1;
+    }
+
+    //Testet ob Spielernummer 1 oder 2 ist 
+    if(playernumber < 1 || playernumber > 2){
+        errPrintInvalidParam("Player number");
+        printAnweisung();
+        return -1;
+    }
+
+
+    //Preparing connection to server "sysprak.priv.lab.nm.ifi.lmu.de"
+    int socketfd = getSocketDescriptorAndConnect();
+    if (socketfd == -1)
+        errFunctionFailed ("getSocketDescriptorAndConnect");
+    else
+        performConnection(socketfd, game_id);
+
+    return 0;
+}
+

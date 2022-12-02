@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <string.h>
 
 #define GAMEKINDNAME "NMMorris"
 #define PORTNUMBER 1357
@@ -19,17 +20,17 @@ void printAnweisung(){
 
 int main(int argc,char**argv){
 
- long long game_id=0;
-    unsigned int playernumber=0;
+    char game_id[15]= {};
+    char playernumber[2]={};
     int option;
 
     while((option = getopt(argc, argv, "g:p:")) != -1){
         switch(option){
             case 'g':
-            game_id = atoll(optarg);
+            strcpy(game_id, optarg);
             break;
             case 'p':
-            playernumber = atoi(optarg);
+            strcpy(playernumber, optarg);
             break;
             default:
             printAnweisung();
@@ -37,22 +38,22 @@ int main(int argc,char**argv){
         }
     }
 
-    // Testet, ob Game-ID 13 stellen hat
+    /*// Test, if game-ID has 13 digits
     int counter = 1;
     long long zahl = game_id;
     while(zahl > 9){
         zahl /= 10;
         counter++;
-    }
+    }*/
 
-    if(counter != 13){
+    if(strlen(game_id) != 15){
         printf("Ungültige Game-ID.\n");
         printAnweisung();
         return -1;
     }
 
-    //Testet ob Spielernummer 1 oder 2 ist 
-    if(playernumber < 1 || playernumber > 2){
+    //Test, if playernumber is 1 or 2
+    if(strcmp(playernumber, "1") != 0|| strcmp(playernumber, "2") != 0){
         printf("Ungültige Spielernummer.\n");
         printAnweisung();
         return -1;
@@ -122,7 +123,7 @@ int getSocketDescriptorAndConnect(){
     if(NULL == res) {
         printf("Could not connect to server %s.\n", HOSTNAME);
         //TODO Error handling
-        retrun -1;
+        return -1;
     }
 
     return socketfd;

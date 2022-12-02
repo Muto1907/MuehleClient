@@ -108,22 +108,25 @@ int main(int argc,char**argv){
         counter++;
     }*/
 
-    if(strlen(game_id) != 15){
+    if(strlen(game_id) != 13){
         printf("Ungültige Game-ID.\n");
         printAnweisung();
         return -1;
     }
 
     //Test, if playernumber is 1 or 2
-    if(strcmp(playernumber, "1") != 0|| strcmp(playernumber, "2") != 0){
-        printf("Ungültige Spielernummer.\n");
-        printAnweisung();
-        return -1;
+    if(strcmp(playernumber, "1") != 0) {
+        if(strcmp(playernumber, "2") != 0){
+            printf("Ungültige Spielernummer.\n");
+            printAnweisung();
+            return -1;
+        }
     }
 
 
     //Preparing connection to server "sysprak.priv.lab.nm.ifi.lmu.de"
     int socketfd = getSocketDescriptorAndConnect();
+    //printf("socket fd: %d\n", socketfd); 
     //TODO error handling for socketfd == -1
 
     //performConnection(socketfd, game_id);

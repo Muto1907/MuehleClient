@@ -24,21 +24,18 @@ void printAnweisung(){
 */
 int getSocketDescriptorAndConnect(){
     int socketfd;
-
-    struct sockaddr_in address;
-    memset(&address, 0, sizeof(address)); //Filling struct values with 0
-    address.sin_family = AF_INET;
-    address.sin_port = htons(PORTNUMBER);
+    char portnb[4*sizeof(int)];
+    snprintf(portnb, sizeof(portnb), "%d", PORTNUMBER); //converting int PORTNUMBER to char-array portnb
 
     //Retrieving the server address using getaddrinfo()
     struct addrinfo hints, *res, *result;
 
     memset (&hints, 0, sizeof (hints));
-    hints.ai_family = AF_INET; //using IPv4 addresses
+    hints.ai_family = AF_UNSPEC; //using IPv4 or IPv6 addresses
     hints.ai_socktype = SOCK_STREAM; //using TCP connection
     hints.ai_protocol = IPPROTO_TCP; //using TCP protocol
 
-    if(getaddrinfo(HOSTNAME, NULL, &hints, &result) != 0) {
+    if(getaddrinfo(HOSTNAME, portnb, &hints, &result) != 0) {
         perror("getaddrinfo"); //TODO Error handling
         return -1;
     }
@@ -54,13 +51,11 @@ int getSocketDescriptorAndConnect(){
     while (res) {
         res = res->ai_next;
 
-        if((socketfd = socket(AF_INET, SOCK_STREAM, 0))==-1) {
+        if((socketfd = socket(res->ai_family, SOCK_STREAM, 0))==-1) {
             continue;
         }
 
-        address.sin_addr = ((struct sockaddr_in *) res->ai_addr)->sin_addr;
-
-        if(connect(socketfd, (struct sockaddr *) &address, sizeof(address)) != -1) {
+        if(connect(socketfd, res->ai_addr, res->ai_addrlen) != -1) {
             break;
         }
 
@@ -126,7 +121,7 @@ int main(int argc,char**argv){
 
     //Preparing connection to server "sysprak.priv.lab.nm.ifi.lmu.de"
     int socketfd = getSocketDescriptorAndConnect();
-    //printf("socket fd: %d\n", socketfd); 
+    printf("socket fd: %d\n", socketfd); //for testing only!!
     //TODO error handling for socketfd == -1
 
     //performConnection(socketfd, game_id);

@@ -20,6 +20,13 @@ void errWithHost (char *failedfunc, char* hostname)
      
 }
 
+void errWithFile (char *failedfunc, char* filename)
+{
+    sprintf(errMsg, "%s failed, File [%s]", failedfunc, filename);
+    perror(errMsg);
+     
+}
+
 
 void traceMsgRcvd(char* buf)
 {

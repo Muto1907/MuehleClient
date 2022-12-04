@@ -11,6 +11,7 @@
 #include <string.h>
 #include "errorHandling.h"
 #include "PerformConnection.h"
+#include "paramConfig.h"
 
 #define GAMEKINDNAME "NMMorris"
 #define PORTNUMBER 1357
@@ -90,6 +91,11 @@ int main(int argc,char**argv){
     char playernumber[2]={};
     int option;
 
+    PARAM_CONFIG_T  config;
+    char    configFile[256];
+    InitConfigParam(&config);
+    strcpy(configFile,"client.conf");
+
     while((option = getopt(argc, argv, "g:p:")) != -1){
         switch(option){
             case 'g':
@@ -103,6 +109,9 @@ int main(int argc,char**argv){
             return 0;
         }
     }
+
+    LoadConfigParam(&config,configFile);
+    DumpConfig(&config);
 
     /*// Test, if game-ID has 13 digits
     int counter = 1;

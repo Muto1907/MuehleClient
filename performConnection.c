@@ -133,7 +133,7 @@ int performConnection(int fileDescriptor, char* gameID){
 		else if(serverMsg[0] == '+'){
 			printf("Server: %s\n", serverMsg);
 		}
-		//Empfange siebte Nachricht vom Server Mitspieler BEREIT
+		//receive seventh Server-message: Players ready
 	getServermsg(fileDescriptor);
 		if (serverMsg[0] == '-'){
 			printf("Error: %s\n", serverMsg);
@@ -142,7 +142,7 @@ int performConnection(int fileDescriptor, char* gameID){
 			printf("Server: %s\n", serverMsg);
 		}
 
-		//Empfange achte Nachricht vom Server ENDPLAYERS
+		//receive eight Server-Message ENDPLAYERS
 	getServermsg(fileDescriptor);
 		if (serverMsg[0] == '-'){
 			printf("Error: %s\n", serverMsg);

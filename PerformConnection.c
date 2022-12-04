@@ -3,104 +3,146 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <unistd.h>
+#include <limits.h>
 
 
 #define BUF 1024
-
-int performConnection(int filedescriptor, char* gameID){
-
-	size_t size;
-	char *buffer = (char*) malloc (sizeof(char) * BUF) ;
-	char *gameVersionmsg = "VERSION 2.1\n";
+#define gameVersion "Version 2.1\n"
 	
+char serverMsg[BUF];
+char clientMsg[BUF];
+//variables for receiving Servermessage:
+size_t size;
+int msgSnippet;
+int bytesReceived;
 
-	//Empfange erste Nachricht vom Server
-	size = recv(filedescriptor, buffer, BUF-1, 0);
-	
-	if(size > 0) buffer[size] = '\0';
+
+// Receive the server message
+void getServermsg(int fileDescriptor){
+	//Reset previous Server message
+	size = 0;
+	msgSnippet = 0;
+	bytesReceived = 0;
+	memset(serverMsg, 0, BUF);
+
+	do {
+		size = recv(fileDescriptor, &serverMsg[bytesReceived], BUF - bytesReceived, 0);
+		msgSnippet++;
+		if(size > 0) {
+			bytesReceived += size;
+		}
+		else{
+		printf("Error: %d n", result);
+		exit(EXIT_FAILURE);
+		}
+		if(bytesReceived >= BUF){
+			printf("Buffer overflow");
+			break;
+		}
+		// Make sure the serve Message is complete if not receive again
+	} while (serverMsg[bytesReceived - 1] != '\n');
+	printf("Client: %s\n", serverMsg);
+}
+
+
+void sendMsgToServer(int fileDescriptor, char* msgInput) {
+	strcpy(clientMsg, msgInput);
+	if(send(fileDescriptor, clientMsg, strlen(clientMsg), 0) < 0){
+		printf("Error Client message could not be sent.\n");
+	} else {
+		printf("Client: %s", clientMsg);
+	}
+	// clean up clientMsg for later use
+	memset(clientMsg, 0, BUF);
+}
+
+
+
+
+
+
+
+int performConnection(int fileDescriptor, char* gameID){
+
+	// create Client message for gameID
+	char formatgameID [18];
+	strcpy(formatgameID, "ID ");
+	strcat(formatgameID, gameID);
+	strcat(formatgameID, "\n");
+
+	//Receive firsst Server-Message
+	getServermsg(fileDescriptor);
+
 	//TODO: Formatierte Ausgabe der ersten Servernachricht GameServer Version
 	
 
-	if(buffer[0] == '-'){
-		//TODO: Fehlerbehandlung 
-
+	if(serverMsg[0] == '-'){
+		printf("Error: %s\n", serverMsg);
 	}
+	else if(serverMsg[0] =='+'){
 
-		//Version des Clients abschicken
-		strcpy(buffer, gameVersionmsg); 
-		send(filedescriptor, buffer, strlen(buffer), 0);	
-
+		sendMsgToServer(fileDescriptor, gameVersion);	
+	}
 
 		//Empfange zweite Nachricht vom Server
-		size = recv(filedescriptor, buffer, BUF-1, 0);
-		if(size > 0) buffer[size] = '\0';
+	getServermsg(fileDescriptor);
 		//TODO: Formatierte Ausgabe der zweiten Servernachricht GAME ID
 
-	if(buffer[0] == '-'){
-		//TODO: Fehlerbehandlung falsche CLIENT Version
+	if(getServermsg[0] == '-'){
+		printf("Error: %s\n", serverMsg);
 
 	}
-			
-		strcpy(buffer, "ID ");
-		strcat(buffer, gameID); 
-		//Version des Clients abschicken
-		send(filedescriptor, buffer, strlen(buffer), 0);	
+	else if(serverMsg[0] == '+'){
+		sendMsgToServer(fileDescriptor, formatgameID);
+	}
 
 		//Empfange dritte Nachricht vom Server
-		size = recv(filedescriptor, buffer, BUF-1, 0);
-		if(size > 0) buffer [size] = '\0';
+	getServermsg(fileDescriptor);
 		//TODO: Formatierte Ausgabe der dritten Servernachricht Gamekind-Name
-		if (buffer[0] == '-'){
-			//TODO: Fehlerbehandlung Game ID Fehler
-		}
-		if (strcmp(buffer,"+ PLAYING NMMorris\n") != 0){
-			//TODO: Fehlerbehandlung Server erwartet falsches Spiel
-		}
+
+	if (serverMsg[0] == '-'){
+		printf("Error: %s\n", serverMsg);
+	}
+	if (strcmp(serverMsg,"+ PLAYING NMMorris\n") != 0){
+			printf("Error: Wrong Game selected!\n");
+	}
 
 		//Empfange vierte Nachricht vom Server
-	size = recv(filedescriptor, buffer, BUF-1, 0);
-		if(size > 0) buffer [size] = '\0';
+	getServermsg(fileDescriptor);
 		//TODO: Formatierte Ausgabe der vierten Servernachricht Game-Name
-		if (buffer[0] == '-'){
-			//TODO: Fehlerbehandlung (?)
+		if (serverMsg[0] == '-'){
+			printf("Error: %s\n", serverMsg);
 		}
 
 		//Sende Mitspielernummer an Server 
-		strcpy(buffer, "PLAYER\n");
-		send(filedescriptor, buffer, strlen(buffer), 0);
+		sendMsgToServer(fileDescriptor, "PLAYER\n");
 
 
 		//Empfange fünfte Nachricht vom Server Spielerinfo
-	size = recv(filedescriptor, buffer, BUF-1, 0);
-		if(size > 0) buffer [size] = '\0';
-		//TODO: Formatierte Ausgabe der fünften Servernachricht Spielerinfoanzeige
-		if (buffer[0] == '-'){
-			//TODO: Fehlerbehandlung Mitspielernummer
+	getServermsg(fileDescriptor);
+		if (serverMsg[0] == '-'){
+			printf("Error: %s\n", serverMsg);
 		}
 
 		//Empfange sechste Nachricht vom Server Mitspieleranzahl
-	size = recv(filedescriptor, buffer, BUF-1, 0);
-		if(size > 0) buffer [size] = '\0';
-		//TODO: Formatierte Ausgabe der fünften Servernachricht Mitspieleranzahl
-		if (buffer[0] == '-'){
-			//TODO: Fehlerbehandlung Spielerinfoanzeige
+	getServermsg(fileDescriptor);
+		if (serverMsg[0] == '-'){
+			printf("Error: %s\n", serverMsg);
 		}
 
 		//Empfange siebte Nachricht vom Server Mitspieler BEREIT
-	size = recv(filedescriptor, buffer, BUF-1, 0);
-		if(size > 0) buffer [size] = '\0';
-		//TODO: Formatierte Ausgabe der fünften Servernachricht Spielerinfoanzeige
-		if (buffer[0] == '-'){
-			//TODO: Fehlerbehandlung Mitspieleranzahl
+	getServermsg(fileDescriptor);
+		if (serverMsg[0] == '-'){
+			printf("Error: %s\n", serverMsg);
 		}
 
 		//Empfange achte Nachricht vom Server ENDPLAYERS
-	size = recv(filedescriptor, buffer, BUF-1, 0);
-		if(size > 0) buffer [size] = '\0';
-		//TODO: Formatierte Ausgabe der achten Servernachricht Spielerinfoanzeige
-		if (buffer[0] == '-'){
-			//TODO: Fehlerbehandlung Mitspielerinfo
+	getServermsg(fileDescriptor);
+		if (serverMsg[0] == '-'){
+			printf("Error: %s\n", serverMsg);
 		}
+	return 0;
 }
 
 

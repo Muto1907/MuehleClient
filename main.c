@@ -9,6 +9,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include "performConnection.h"
 
 #define GAMEKINDNAME "NMMorris"
 #define PORTNUMBER 1357
@@ -75,7 +76,7 @@ int getSocketDescriptorAndConnect(){
 }
 
 
-int main(int argc,char**argv){
+int main(int argc,char** argv){
 
     char game_id[15]= {};
     char playernumber[2]={};
@@ -124,7 +125,7 @@ int main(int argc,char**argv){
     printf("socket fd: %d\n", socketfd); //for testing only!!
     //TODO error handling for socketfd == -1
 
-    //performConnection(socketfd, game_id);
+    performConnection(socketfd, game_id);
 
     return 0;
 }

@@ -1,8 +1,7 @@
 #ifndef performConnection
-#define performConnection
 
 void getServermsg(int fileDescriptor);
 void sendMsgToServer(int fileDescriptor, char* msgInput);
-int performConnection (int fileDescrptor, char* gameID);
+int performConnection (int fileDescriptor, char* gameID);
 
 #endif

@@ -50,7 +50,6 @@ int getSocketDescriptorAndConnect(){
     * Otherwise, socket gets closed and loop is continued.
     */
     while (res) {
-        res = res->ai_next;
 
         if((socketfd = socket(res->ai_family, SOCK_STREAM, 0))==-1) {
             continue;
@@ -61,6 +60,8 @@ int getSocketDescriptorAndConnect(){
         }
 
         close(socketfd);
+
+        res = res->ai_next;
     }
     
     freeaddrinfo(result); //no longer needed since IP-address of server has been resolved
@@ -122,7 +123,7 @@ int main(int argc,char** argv){
 
     //Preparing connection to server "sysprak.priv.lab.nm.ifi.lmu.de"
     int socketfd = getSocketDescriptorAndConnect();
-    printf("socket fd: %d\n", socketfd); //for testing only!!
+    //printf("socket fd: %d\n", socketfd); //for testing only!!
     //TODO error handling for socketfd == -1
 
     performConnection(socketfd, game_id);

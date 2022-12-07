@@ -52,7 +52,6 @@ int getSocketDescriptorAndConnect(){
     */
 
     while (res) {
-        res = res->ai_next;
 
         if((socketfd = socket(res->ai_family, SOCK_STREAM, 0))==-1) {
             continue;
@@ -63,6 +62,8 @@ int getSocketDescriptorAndConnect(){
         }
 
         close(socketfd);
+
+        res = res->ai_next;
     }
     // TODO: segmentation fault when running from home (even with vpn)
 

@@ -1,11 +1,11 @@
 CC = /usr/bin/gcc
 FLAGS = -Wall -Werror
-SOURCE = main.c
+SOURCE = main.c performConnection.c
 
 all: sysprak-client
 
-sysprak-client: ${SOURCE} errorHandling.h PerformConnection.h paramConfig.h errorHandling.o PerformConnection.o paramConfig.o
-	$(CC) $(FLAGS) -o $@ ${SOURCE} errorHandling.o PerformConnection.o paramConfig.o
+sysprak-client: ${SOURCE} 
+	$(CC) $(FLAGS) -o $@ ${SOURCE}
 
 debug:	${SOURCE}
 	$(CC) $(FLAGS) -o $@ ${SOURCE} -g

@@ -9,7 +9,9 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include "errorHandling.h"
 #include "performConnection.h"
+#include "paramConfig.h"
 
 #define GAMEKINDNAME "NMMorris"
 #define PORTNUMBER 1357
@@ -37,18 +39,18 @@ int getSocketDescriptorAndConnect(){
     hints.ai_protocol = IPPROTO_TCP; //using TCP protocol
 
     if(getaddrinfo(HOSTNAME, portnb, &hints, &result) != 0) {
-        perror("getaddrinfo"); //TODO Error handling
+        errWithHost ("getaddrinfo", HOSTNAME);
         return -1;
     }
 
     res = result;
-
     /*Iterating through the list of address structures obtained by getaddrinfo().
     * Trying to connect to one of the sockets.
     * If socket creation fails, we immediately continue with next iteration (continue).
     * If connection can be established, loop is ended (break).
     * Otherwise, socket gets closed and loop is continued.
     */
+
     while (res) {
 
         if((socketfd = socket(res->ai_family, SOCK_STREAM, 0))==-1) {
@@ -63,13 +65,14 @@ int getSocketDescriptorAndConnect(){
 
         res = res->ai_next;
     }
-    
+    // TODO: segmentation fault when running from home (even with vpn)
+
+
     freeaddrinfo(result); //no longer needed since IP-address of server has been resolved
 
     //All connection attempts failed, i.e. res reached the end of the list of address structures
     if(NULL == res) {
-        printf("Could not connect to server %s.\n", HOSTNAME);
-        //TODO Error handling
+        errWithHost("Connect to server", HOSTNAME);
         return -1;
     }
 
@@ -77,11 +80,22 @@ int getSocketDescriptorAndConnect(){
 }
 
 
-int main(int argc,char** argv){
+int main(int argc,char**argv){
+
+    if (argc <= 1)
+    {
+        printAnweisung();
+        return -1;
+    }
 
     char game_id[15]= {};
     char playernumber[2]={};
     int option;
+
+    PARAM_CONFIG_T  config;
+    char    configFile[256];
+    InitConfigParam(&config);
+    strcpy(configFile,"client.conf");
 
     while((option = getopt(argc, argv, "g:p:")) != -1){
         switch(option){
@@ -96,6 +110,10 @@ int main(int argc,char** argv){
             return 0;
         }
     }
+    // TODO: define and process option for configuration file name 
+
+    LoadConfigParam(&config,configFile);
+    DumpConfig(&config);
 
     /*// Test, if game-ID has 13 digits
     int counter = 1;
@@ -106,7 +124,7 @@ int main(int argc,char** argv){
     }*/
 
     if(strlen(game_id) != 13){
-        printf("Ungültige Game-ID.\n");
+        errPrintInvalidParam("Game-ID");
         printAnweisung();
         return -1;
     }
@@ -114,7 +132,7 @@ int main(int argc,char** argv){
     //Test, if playernumber is 1 or 2
     if(strcmp(playernumber, "1") != 0) {
         if(strcmp(playernumber, "2") != 0){
-            printf("Ungültige Spielernummer.\n");
+            errPrintInvalidParam("Player number");
             printAnweisung();
             return -1;
         }
@@ -123,10 +141,11 @@ int main(int argc,char** argv){
 
     //Preparing connection to server "sysprak.priv.lab.nm.ifi.lmu.de"
     int socketfd = getSocketDescriptorAndConnect();
-    //printf("socket fd: %d\n", socketfd); //for testing only!!
-    //TODO error handling for socketfd == -1
-
-    performConnection(socketfd, game_id);
+    printf("socket fd: %d\n", socketfd); //for testing only!!
+    if (socketfd == -1)
+        errFunctionFailed ("getSocketDescriptorAndConnect");
+    else
+        performConnection(socketfd, game_id);
 
     return 0;
 }

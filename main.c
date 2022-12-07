@@ -10,7 +10,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include "errorHandling.h"
-#include "PerformConnection.h"
+#include "performConnection.h"
 #include "paramConfig.h"
 
 #define GAMEKINDNAME "NMMorris"

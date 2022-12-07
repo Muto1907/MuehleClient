@@ -10,6 +10,7 @@
 #define wordlength 128
 #define BUF 1024
 #define CLIENTVERSION "VERSION 2.1\n"
+#define EXIT_ERROR  (-1)
 
 	
 char serverMsg[BUF];
@@ -49,7 +50,7 @@ void getServermsg(int fileDescriptor){
 			bytesReceived += size;
 		}
 		else{
-		printf("Error: %ld n", size);
+		printf("Error: %ld \n", size);
 		exit(EXIT_FAILURE);
 		}
 		if(bytesReceived >= BUF){
@@ -91,7 +92,6 @@ int performConnection(int fileDescriptor, char* gameID){
 	getServermsg(fileDescriptor);
     serverMessageCount++;
 
-	//TODO Errorhandling and Output (server message prints are just a placeholder for now)
 	
     //if serverMessage begins with '-' an Error occured.
 	if(serverMsg[0] == '-'){
@@ -99,24 +99,29 @@ int performConnection(int fileDescriptor, char* gameID){
 		switch(serverMessageCount){
             case 1 :
                 //Error GameServer not accepting connections
-                printf("Gameserver not responding\n");
+                printf("ERROR: Gameserver not responding\n");
+                exit(EXIT_ERROR);
                 break;
             
             case 2:
                 //Error Client Version rejected
-                printf("Client Version rejected\n");
+                printf("ERROR: Client Version rejected\n");
+                exit(EXIT_ERROR);
                 break;
             
             case 3:
                 //Error wrong GameID
-                printf("wrong GameID\n");
+                printf("ERROR: Wrong GameID\n");
+                exit(EXIT_ERROR);
                 break;
             
             case 4:
                 //player Number rejected
-                printf("Wrong Playernumber\n");
+                printf("ERROR: Wrong Playernumber\n");
+                exit(EXIT_ERROR);
             default: 
-                printf("Error: %s\n", serverMsg);
+                printf("ERROR: %s\n", serverMsg);
+                exit(EXIT_ERROR);
                 break;
         }
 	}

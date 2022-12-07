@@ -7,8 +7,9 @@
 #include <limits.h>
 #include "performConnection.h"
 
+#define wordlength 128
 #define BUF 1024
-#define GAMEVERSION "VERSION 2.1\n"
+#define CLIENTVERSION "VERSION 2.1\n"
 
 	
 char serverMsg[BUF];
@@ -19,7 +20,21 @@ int msgSnippet;
 int bytesReceived;
 
 
-// Receive the server message
+
+//parameters to be read from the Server messages
+char gameServerVersion[wordlength];
+char gameKindName[wordlength];
+char gameName[wordlength];
+char myPlayerName[wordlength];
+int myPlayerNumber;
+int playerCount;
+char enemyPlayerName [wordlength];
+int enemyPlayerNumber;
+int isReady;
+
+
+
+
 void getServermsg(int fileDescriptor){
 	//Reset previous Server message
 	size = 0;
@@ -67,89 +82,97 @@ int performConnection(int fileDescriptor, char* gameID){
 	strcat(formatgameID, gameID);
 	strcat(formatgameID, "\n");
 
-	//Receive first Server-Message: Gameserverversion
+    int serverMessageCount = 0;
+    
+    //for sscanf serverMessage without important parameters
+    char pseudoscan[BUF];
+
+    while (1){
 	getServermsg(fileDescriptor);
+    serverMessageCount++;
 
 	//TODO Errorhandling and Output (server message prints are just a placeholder for now)
 	
-
+    //if serverMessage begins with '-' an Error occured.
 	if(serverMsg[0] == '-'){
-		printf("Error: %s\n", serverMsg);
+
+		switch(serverMessageCount){
+            case 1 :
+                //Error GameServer not accepting connections
+                printf("Gameserver not responding\n");
+                break;
+            
+            case 2:
+                //Error Client Version rejected
+                printf("Client Version rejected\n");
+                break;
+            
+            case 3:
+                //Error wrong GameID
+                printf("wrong GameID\n");
+                break;
+            
+            case 4:
+                //player Number rejected
+                printf("Wrong Playernumber\n");
+            default: 
+                printf("Error: %s\n", serverMsg);
+                break;
+        }
 	}
+    //+ means the Server is giving a positive Response
 	else if(serverMsg[0] =='+'){
-		printf("Server: %s\n", serverMsg);
-		sendMsgToServer(fileDescriptor, GAMEVERSION);	
-	}
-
-		//receive second Server-Message: Client Version
-	getServermsg(fileDescriptor);
-		
-
-	if(serverMsg[0] == '-'){
-		printf("Error: %s\n", serverMsg);
-
-	}
-	else if(serverMsg[0] == '+'){
-		printf("Server: %s\n", serverMsg);
-		sendMsgToServer(fileDescriptor, formatgameID);
-	}
-
-		//Receive third and fourth Server-Message: Gamekindname, Gamename 
-	getServermsg(fileDescriptor);
-
-
-	if (serverMsg[0] == '-'){
-		printf("Error: %s\n", serverMsg);
-	}
-
-	//TODO Error Wrong gamekindname
-	if (strncmp(serverMsg,"+ PLAYING NMMorris\n", 19) != 0){
-			printf("Error: Wrong Game selected!\n");
-	}
-
+        //first Servermessage
+		if(sscanf(serverMsg, "+ MNM Gameserver %s accepting connections\n", gameServerVersion) == 1){
+	        printf("Server: Welcome to MNM Gameserver the Gameserver Version is: %s\n",gameServerVersion);
+            sendMsgToServer(fileDescriptor, CLIENTVERSION);	
+        }
+    
 	
-	else if (serverMsg[0] == '+'){
-		printf("Server: %s\n", serverMsg);
-	//Sending empty Playernumber means Client decides which number we get. 
-		sendMsgToServer(fileDescriptor, "PLAYER\n");
-	}
+        //second Server-Message: Client Version
+		else if(sscanf(serverMsg, "+ Client version accepted - please send %s to join\n", pseudoscan) == 1){
+            printf("Server: %s", serverMsg);
+		    sendMsgToServer(fileDescriptor, formatgameID);
+            memset(pseudoscan, 0, wordlength);
+        }
 	
 
-	//receive fifth Server-Message: Playernumber, Playername
-	getServermsg(fileDescriptor);
-		if (serverMsg[0] == '-'){
-			printf("Error: %s\n", serverMsg);
-		}
-		else if(serverMsg[0] == '+'){
-			printf("Server: %s\n", serverMsg);
-		}
+		//third and fourth Server-Message: Gamekindname, Gamename 
+        else if(sscanf(serverMsg, "+ PLAYING %s\n+ %[^\t\n]",gameKindName, gameName) == 2){
+            if(strcmp(gameKindName, "NMMorris") != 0){
+                printf("Error: Wrong Game selected!\n");
+            }
+            else{
+                  printf("Playing: %s\nGameName: %s\n", gameKindName, gameName);
+                //Sending empty Playernumber means Server decides which number we get. 
+		        sendMsgToServer(fileDescriptor, "PLAYER\n");
+              
+            }
+        }
 
 
-	//receive sixth Server-Message: Total number of Players 
-	getServermsg(fileDescriptor);
-		if (serverMsg[0] == '-'){
-			printf("Error: %s\n", serverMsg);
-		}
-		else if(serverMsg[0] == '+'){
-			printf("Server: %s\n", serverMsg);
-		}
-		//receive seventh Server-message: Players ready
-	getServermsg(fileDescriptor);
-		if (serverMsg[0] == '-'){
-			printf("Error: %s\n", serverMsg);
-		}
-		else if(serverMsg[0] == '+'){
-			printf("Server: %s\n", serverMsg);
-		}
 
-		//receive eight Server-Message ENDPLAYERS
-	getServermsg(fileDescriptor);
-		if (serverMsg[0] == '-'){
-			printf("Error: %s\n", serverMsg);
-		}
-		else if(serverMsg[0] == '+'){
-			printf("Server: %s\n", serverMsg);
-		}
+
+        //fifth to eighth Server-Message: Message 5 = our Playernumber and Playername, Message 6 = Total player numbers, Message 7 Enemy Player Information, Message 8 ENDPLAYERS 
+		else if(sscanf(serverMsg, "+ YOU %d %[^\t\n]\n+ TOTAL %d\n+ %d %s %d\n+ ENDPLAYERS\n",&myPlayerNumber, myPlayerName,&playerCount, &enemyPlayerNumber, enemyPlayerName, &isReady ) == 6){
+            printf("Your Playernumber: %d\nYour Playername: %s\nNumber of participating Players: %d\n", myPlayerNumber, myPlayerName, playerCount);
+            if(isReady){
+                printf("Server: Player Number %d (%s) is ready\n", enemyPlayerNumber, enemyPlayerName);
+				printf("Server: ENDPLAYERS means the Prologue is over\n");
+            }
+            else{
+                printf("Server: Player Number %d (%s) isn't ready yet\n", enemyPlayerNumber, enemyPlayerName);
+            }
+            break;
+			
+        }
+
+        /*else{
+    		printf("Ausserhalb des Prologs: %s", serverMsg);
+		}*/
+        
+    }
+    }
 	return 0;
 }
 

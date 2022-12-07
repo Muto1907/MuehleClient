@@ -9,6 +9,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include <sys/wait.h>
 #include "performConnection.h"
 
 #define GAMEKINDNAME "NMMorris"
@@ -126,7 +127,20 @@ int main(int argc,char** argv){
     //printf("socket fd: %d\n", socketfd); //for testing only!!
     //TODO error handling for socketfd == -1
 
-    performConnection(socketfd, game_id);
+    pid_t pid; //Process-ID
+
+    //Connector Process
+    if((pid = fork()) == 0){
+        performConnection(socketfd, game_id);
+        _exit(0);
+    }
+
+    // Thinker Process starts here
+    
+    // avoids orphan and zombie process, wait for child to die
+    while(wait(NULL) > 0){
+        //empty
+    }
 
     return 0;
 }

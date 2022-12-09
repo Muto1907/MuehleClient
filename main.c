@@ -113,7 +113,6 @@ int main(int argc,char**argv){
             return 0;
         }
     }
-    // TODO: define and process option for configuration file name 
 
     LoadConfigParam(&config,configFile);
     DumpConfig(&config);

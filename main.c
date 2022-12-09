@@ -98,7 +98,7 @@ int main(int argc,char**argv){
     InitConfigParam(&config);
     strcpy(configFile,"client.conf");
 
-    while((option = getopt(argc, argv, "g:p:")) != -1){
+    while((option = getopt(argc, argv, "g:p:f")) != -1){
         switch(option){
             case 'g':
             strcpy(game_id, optarg);
@@ -106,6 +106,8 @@ int main(int argc,char**argv){
             case 'p':
             strcpy(playernumber, optarg);
             break;
+            case 'f':
+            strcpy(configFile, optarg);
             default:
             printAnweisung();
             return 0;

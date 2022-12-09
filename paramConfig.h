@@ -1,3 +1,6 @@
+#ifndef paramConfig
+#define paramConfig
+
 #define HOSTNAME_MAX (256)
 #define GAMENAME_MAX (20)
 
@@ -11,3 +14,5 @@ typedef struct
 void InitConfigParam ( PARAM_CONFIG_T* config );
 int LoadConfigParam ( PARAM_CONFIG_T* config, char *fileName );
 void DumpConfig ( PARAM_CONFIG_T* config );
+
+#endif

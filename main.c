@@ -66,7 +66,6 @@ int getSocketDescriptorAndConnect(){
 
         res = res->ai_next;
     }
-    // TODO: segmentation fault when running from home (even with vpn)
 
 
     freeaddrinfo(result); //no longer needed since IP-address of server has been resolved
@@ -98,7 +97,7 @@ int main(int argc,char**argv){
     InitConfigParam(&config);
     strcpy(configFile,"client.conf");
 
-    while((option = getopt(argc, argv, "g:p:")) != -1){
+    while((option = getopt(argc, argv, "g:p:f:")) != -1){
         switch(option){
             case 'g':
             strcpy(game_id, optarg);
@@ -106,12 +105,14 @@ int main(int argc,char**argv){
             case 'p':
             strcpy(playernumber, optarg);
             break;
+            case 'f':
+            strcpy(configFile, optarg);
+            break;
             default:
             printAnweisung();
             return 0;
         }
     }
-    // TODO: define and process option for configuration file name 
 
     LoadConfigParam(&config,configFile);
     DumpConfig(&config);

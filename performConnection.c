@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <limits.h>
+
 #include "performConnection.h"
 
 #define wordlength 128
@@ -75,7 +76,7 @@ void sendMsgToServer(int fileDescriptor, char* msgInput) {
 }
 
 //Prologue of the TCP Protocoll
-int performConnection(int fileDescriptor, char* gameID){
+int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg){
 
 	// create Client message for gameID
 	char formatgameID [18];
@@ -144,7 +145,7 @@ int performConnection(int fileDescriptor, char* gameID){
 
 		//third and fourth Server-Message: Gamekindname, Gamename 
         else if(sscanf(serverMsg, "+ PLAYING %s\n+ %[^\t\n]",gameKindName, gameName) == 2){
-            if(strcmp(gameKindName, "NMMorris") != 0){
+            if(strcmp(gameKindName, cfg->gamename) != 0){
                 printf("Error: Wrong Game selected!\n");
             }
             else{
@@ -179,6 +180,22 @@ int performConnection(int fileDescriptor, char* gameID){
     }
     }
 	return 0;
+}
+
+GAMEINFO* setParam()
+{
+    GAMEINFO* gameInfo = malloc(sizeof(GAMEINFO));
+
+    if(gameInfo)
+    {
+        strcpy(gameInfo->gameName, gameKindName);
+        gameInfo->myPlayerNumber = myPlayerNumber;
+        gameInfo->countPlayer = playerCount;
+        gameInfo->idThinker = getppid();
+        gameInfo->idConnector = getpid();
+    }
+
+    return gameInfo;
 }
 
 

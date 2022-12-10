@@ -10,13 +10,16 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <sys/wait.h>
+
 #include "errorHandling.h"
 #include "performConnection.h"
 #include "paramConfig.h"
 
+/*
 #define GAMEKINDNAME "NMMorris"
 #define PORTNUMBER 1357
 #define HOSTNAME "sysprak.priv.lab.nm.ifi.lmu.de"
+*/
 
 void printAnweisung(){
     printf("-g <GAME-ID> 13-stellige Game-ID\n");
@@ -26,10 +29,10 @@ void printAnweisung(){
 /*getSocketDescriptorAndConnect creates a socket and tries to connect to the LMU server.
 * returns socket file descriptor socketfd upon success, otherwise -1
 */
-int getSocketDescriptorAndConnect(){
+int getSocketDescriptorAndConnect(PARAM_CONFIG_T* cfg){
     int socketfd;
     char portnb[4*sizeof(int)];
-    snprintf(portnb, sizeof(portnb), "%d", PORTNUMBER); //converting int PORTNUMBER to char-array portnb
+    snprintf(portnb, sizeof(portnb), "%d", cfg->port); //converting int PORTNUMBER to char-array portnb
 
     //Retrieving the server address using getaddrinfo()
     struct addrinfo hints, *res, *result;
@@ -39,8 +42,8 @@ int getSocketDescriptorAndConnect(){
     hints.ai_socktype = SOCK_STREAM; //using TCP connection
     hints.ai_protocol = IPPROTO_TCP; //using TCP protocol
 
-    if(getaddrinfo(HOSTNAME, portnb, &hints, &result) != 0) {
-        errWithHost ("getaddrinfo", HOSTNAME);
+    if(getaddrinfo(cfg->hostname, portnb, &hints, &result) != 0) {
+        errWithHost ("getaddrinfo", cfg->hostname);
         return -1;
     }
 
@@ -72,7 +75,7 @@ int getSocketDescriptorAndConnect(){
 
     //All connection attempts failed, i.e. res reached the end of the list of address structures
     if(NULL == res) {
-        errWithHost("Connect to server", HOSTNAME);
+        errWithHost("Connect to server", cfg->hostname);
         return -1;
     }
 
@@ -141,8 +144,7 @@ int main(int argc,char**argv){
     }
 
 
-    //Preparing connection to server "sysprak.priv.lab.nm.ifi.lmu.de"
-    int socketfd = getSocketDescriptorAndConnect();
+    
     //printf("socket fd: %d\n", socketfd); //for testing only!!
     //TODO error handling for socketfd == -1
 
@@ -150,7 +152,13 @@ int main(int argc,char**argv){
 
     //Connector Process
     if((pid = fork()) == 0){
-        performConnection(socketfd, game_id);
+        //Preparing connection to server "sysprak.priv.lab.nm.ifi.lmu.de"
+        int socketfd = getSocketDescriptorAndConnect(&config);        
+        //printf("socket fd: %d\n", socketfd); //for testing only!!
+        if (socketfd == -1)
+            errFunctionFailed ("getSocketDescriptorAndConnect");
+        else
+            performConnection(socketfd, game_id, &config);
         _exit(0);
     }
 
@@ -160,11 +168,6 @@ int main(int argc,char**argv){
     while(wait(NULL) > 0){
         //empty
     }
-    printf("socket fd: %d\n", socketfd); //for testing only!!
-    if (socketfd == -1)
-        errFunctionFailed ("getSocketDescriptorAndConnect");
-    else
-        performConnection(socketfd, game_id);
 
     return 0;
 }

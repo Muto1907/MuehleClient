@@ -1,5 +1,5 @@
-#ifndef paramConfig
-#define paramConfig
+#ifndef paramConfig_h
+#define paramConfig_h
 
 #define HOSTNAME_MAX (256)
 #define GAMENAME_MAX (20)

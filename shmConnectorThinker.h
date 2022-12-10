@@ -1,15 +1,15 @@
-#ifndef shmConnectorThinker
-#define shmConnectorThinker
+#ifndef shmConnectorThinker_h
+#define shmConnectorThinker_h
 
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include <bool.h>
+#include <stdbool.h>
 
 
 typedef struct {
 
-    char *gameName;
+    char gameName[32];
     int myPlayerNumber;
     int countPlayer;
     pid_t idThinker;
@@ -20,7 +20,7 @@ typedef struct {
 typedef struct {
 
     int myPlayerNumber;
-    char *playerName;
+    char playerName[256];
     bool ready;
 
 } PLAYERINFO;

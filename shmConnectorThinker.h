@@ -19,7 +19,7 @@ typedef struct {
 
 typedef struct {
 
-    int myPlayerNumber;
+    int playerNumber;
     char playerName[256];
     bool ready;
 

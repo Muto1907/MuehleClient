@@ -14,6 +14,7 @@
 #include "errorHandling.h"
 #include "performConnection.h"
 #include "paramConfig.h"
+#include "shmConnectorThinker.h"
 
 /*
 #define GAMEKINDNAME "NMMorris"
@@ -149,6 +150,10 @@ int main(int argc,char**argv){
     //TODO error handling for socketfd == -1
 
     pid_t pid; //Process-ID
+    int shm_id; //shared memory ID
+    void *shmAddress_connector;
+    void *shmAddress_thinker;
+    GAMEINFO *gameInfo;
 
     //Connector Process
     if((pid = fork()) == 0){
@@ -159,15 +164,32 @@ int main(int argc,char**argv){
             errFunctionFailed ("getSocketDescriptorAndConnect");
         else
             performConnection(socketfd, game_id, &config);
+
+        //Creating and attaching shared memory segment for internal communication with Thinker
+        
+        //MISSING: Getting game info for gameInfo from performConnection
+        
+        //shm_id = createShm(gameInfo);
+        //shmAddress_connector = attachShm(shm_id);
+
         _exit(0);
     }
 
     // Thinker Process starts here
+
+    //Creating and attaching shared memory segment for internal communication with Connector
+        
+        //MISSING: Getting game info for gameInfo from performConnection
+        
+        //shmAddress_thinker = attachShm(shm_id);
     
     // avoids orphan and zombie process, wait for child to die
     while(wait(NULL) > 0){
         //empty
     }
+
+    //delete shared memory segment for Connector and Thinker
+    //clearShm(shm_id);
 
     return 0;
 }

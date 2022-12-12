@@ -25,8 +25,10 @@ typedef struct {
 
 } PLAYERINFO;
 
-GAMEINFO* getGameInfo();
-PLAYERINFO* getPlayerInfo();
-int createShm();
+/* GAMEINFO* getGameInfo();
+PLAYERINFO* getPlayerInfo(); */
+int createShm(GAMEINFO *gameInfo);
+void *attachShm(int shm_id);
+void clearShm(int shm_id);
 
 #endif

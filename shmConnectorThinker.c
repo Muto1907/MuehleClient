@@ -9,21 +9,38 @@
 
 #define EXIT_ERROR (-1)
 
-int shm_id;
-void *shm_address;
-GAMEINFO gameInfo;
+int createShm(GAMEINFO *gameInfo){
 
-if((shm_id = shmget(IPC_PRIVATE, sizeof(GAMEINFO)+gameInfo.countPlayer*sizeof(PLAYERINFO), IPC_CREAT | IPC_EXCL)) == -1) {
+    int shm_id;
 
-    errFunctionFailed("shm creation");
-    return EXIT_ERROR;
+    if((shm_id = shmget(IPC_PRIVATE, sizeof(GAMEINFO)+gameInfo->countPlayer*sizeof(PLAYERINFO), IPC_CREAT | IPC_EXCL)) == -1) {
+
+        errFunctionFailed("shm creation");
+        return EXIT_ERROR;
+    }
+    else {
+        return shm_id;
+    }  
 
 }
 
+void *attachShm(int shm_id){
 
-//evtl. Flags setzen, falls Connector nur schreibenden und Thinker nurlesenden Zugriff benötigt
-if((shm_address = shmat(shm_id, NULL, 0))==-1) {
+    void *shm_address;
+    //evtl. Flags setzen, falls Connector nur schreibenden und Thinker nurlesenden Zugriff benötigt
+    if((shm_address = shmat(shm_id, NULL, 0))==-1) {
 
-    errFunctionFailed("shm attachment");
-    return EXIT_ERROR;
-}
+        errFunctionFailed("shm attachment");
+        return EXIT_ERROR;
+    }
+    else {
+        return shm_address;
+    } 
+} 
+
+void clearShm(int shm_id){
+    if((shmctl(shm_id, IPC_RMID, NULL)) == -1){
+
+        errFunctionFailed("shm deletion");
+    }  
+} 

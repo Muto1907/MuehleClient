@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdbool.h>
 #include <getopt.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -150,10 +151,8 @@ int main(int argc,char**argv){
     //TODO error handling for socketfd == -1
 
     pid_t pid; //Process-ID
-    int shm_id; //shared memory ID
-    void *shmAddress_connector;
-    void *shmAddress_thinker;
-    GAMEINFO *gameInfo;
+    int shm_id = -42; //shared memory ID, initially set to a random, meaningless value
+    bool shmExists = false; //flag if Connector has already created shm segment
 
     //Connector Process
     if((pid = fork()) == 0){
@@ -164,24 +163,60 @@ int main(int argc,char**argv){
             errFunctionFailed ("getSocketDescriptorAndConnect");
         else
             performConnection(socketfd, game_id, &config);
+        
+        //filling gameInfo data
+        GAMEINFO *gameInfo;
+        gameInfo = setParam();
 
         //Creating and attaching shared memory segment for internal communication with Thinker
-        
-        //MISSING: Getting game info for gameInfo from performConnection
-        
-        //shm_id = createShm(gameInfo);
-        //shmAddress_connector = attachShm(shm_id);
+        shm_id = createShm(gameInfo);
+
+        shmExists = true; //signalling Thinker that shm segment now exists
+
+        void *shmAddress_connector;
+        shmAddress_connector = attachShm(shm_id);
+
+        //creating pointer to addresses in shm segment where game info and player infos are stored respectively
+        GAMEINFO *shm_gameInfo;
+        //PLAYERINFO *shm_allPlayerInfo;
+
+        shm_gameInfo = (GAMEINFO *) shmAddress_connector;
+        //shm_allPlayerInfo = (PLAYERINFO *)
+
+        shm_gameInfo = gameInfo;
+
+        //for testing only
+        printf("Connector gameInfo->gameName: %s", gameInfo->gameName);
+        printf("Connector shm_gameInfo->gameName: %s", shm_gameInfo->gameName);
+
+        //free memory for GAMEINFO *gameInfo
+        free(gameInfo);
 
         _exit(0);
     }
 
     // Thinker Process starts here
 
-    //Creating and attaching shared memory segment for internal communication with Connector
-        
-        //MISSING: Getting game info for gameInfo from performConnection
-        
-        //shmAddress_thinker = attachShm(shm_id);
+    //waiting for child process Connector to create shm segment
+    while(!shmExists){
+        //do nothing
+    } 
+
+    //Attaching shared memory segment with id shm_id for internal communication with Connector
+    void *shmAddress_thinker;
+    if(shm_id != -42){ //shouldn't be the case!
+        shmAddress_thinker = attachShm(shm_id);
+    } 
+
+    //creating pointer to addresses in shm segment where game info and player infos are stored respectively
+    GAMEINFO *shm_gameInfo;
+    //PLAYERINFO *shm_allPlayerInfo;
+
+    shm_gameInfo = (GAMEINFO *) shmAddress_thinker;
+    //shm_allPlayerInfo = (PLAYERINFO *) 
+
+    //for testing only
+    printf("Thinker shm_gameInfo->gameName: %s", shm_gameInfo->gameName);
     
     // avoids orphan and zombie process, wait for child to die
     while(wait(NULL) > 0){
@@ -189,7 +224,7 @@ int main(int argc,char**argv){
     }
 
     //delete shared memory segment for Connector and Thinker
-    //clearShm(shm_id);
+    clearShm(shm_id);
 
     return 0;
 }

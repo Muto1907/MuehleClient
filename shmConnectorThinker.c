@@ -27,7 +27,7 @@ int createShm(GAMEINFO *gameInfo){
 void *attachShm(int shm_id){
 
     void *shm_address;
-    //evtl. Flags setzen, falls Connector nur schreibenden und Thinker nurlesenden Zugriff benötigt
+    //evtl. Flags setzen, falls Connector nur schreibenden und Thinker nur lesenden Zugriff benötigt
     if((shm_address = shmat(shm_id, NULL, 0)) == (void*) -1) {
 
         errFunctionFailed("shm attachment");

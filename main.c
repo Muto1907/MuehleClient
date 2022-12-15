@@ -151,8 +151,17 @@ int main(int argc,char**argv){
     //TODO error handling for socketfd == -1
 
     pid_t pid; //Process-ID
-    int shm_id = -42; //shared memory ID, initially set to a random, meaningless value
-    bool shmExists = false; //flag if Connector has already created shm segment
+
+    int initial_shm_id; //ID for the shared memory pointing to actual shared memory
+
+    //creating and attaching initial shm segment storing the shm id for the actual shm segment
+    if((initial_shm_id = shmget(IPC_PRIVATE, sizeof(int *), IPC_CREAT | IPC_EXCL)) == -1) {
+
+        errFunctionFailed("initial_shm_id creation");
+    }
+
+    int *initial_shm_ptr;
+    initial_shm_ptr = (int *) attachShm(initial_shm_id);
 
     //Connector Process
     if((pid = fork()) == 0){
@@ -168,19 +177,20 @@ int main(int argc,char**argv){
         GAMEINFO *gameInfo;
         gameInfo = setParam();
 
-        //Creating and attaching shared memory segment for internal communication with Thinker
+        //Creating and attaching shared memory segment for actual communication with Thinker
+        int shm_id;
         shm_id = createShm(gameInfo);
+        //initial_shm_ptr points to shm_id
+        *initial_shm_ptr = shm_id;
 
-        shmExists = true; //signalling Thinker that shm segment now exists
+        void *shmPtr_connector;
+        shmPtr_connector = attachShm(shm_id);
 
-        void *shmAddress_connector;
-        shmAddress_connector = attachShm(shm_id);
-
-        //creating pointer to addresses in shm segment where game info and player infos are stored respectively
+        //creating pointer to addresses in actual shm segment where game info and player infos are stored respectively
         GAMEINFO *shm_gameInfo;
         //PLAYERINFO *shm_allPlayerInfo;
 
-        shm_gameInfo = (GAMEINFO *) shmAddress_connector;
+        shm_gameInfo = (GAMEINFO *) shmPtr_connector;
         //shm_allPlayerInfo = (PLAYERINFO *)
 
         shm_gameInfo = gameInfo;
@@ -198,21 +208,16 @@ int main(int argc,char**argv){
     // Thinker Process starts here
 
     //waiting for child process Connector to create shm segment
-    while(!shmExists){
-        //do nothing
-    } 
 
-    //Attaching shared memory segment with id shm_id for internal communication with Connector
-    void *shmAddress_thinker;
-    if(shm_id != -42){ //shouldn't be the case!
-        shmAddress_thinker = attachShm(shm_id);
-    } 
+    //Attaching actual shared memory segment with id *initial_shm_ptr for internal communication with Connector
+    void *shmPtr_thinker;
+    shmPtr_thinker = attachShm(*initial_shm_ptr);
 
-    //creating pointer to addresses in shm segment where game info and player infos are stored respectively
+    //creating pointer to addresses in acctual shm segment where game info and player infos are stored respectively
     GAMEINFO *shm_gameInfo;
     //PLAYERINFO *shm_allPlayerInfo;
 
-    shm_gameInfo = (GAMEINFO *) shmAddress_thinker;
+    shm_gameInfo = (GAMEINFO *) shmPtr_thinker;
     //shm_allPlayerInfo = (PLAYERINFO *) 
 
     //for testing only
@@ -224,7 +229,8 @@ int main(int argc,char**argv){
     }
 
     //delete shared memory segment for Connector and Thinker
-    clearShm(shm_id);
+    clearShm(initial_shm_id);
+    clearShm(*initial_shm_ptr);
 
     return 0;
 }

@@ -13,7 +13,7 @@ int createShm(GAMEINFO *gameInfo){
 
     int shm_id;
 
-    if((shm_id = shmget(IPC_PRIVATE, sizeof(GAMEINFO)+gameInfo->countPlayer*sizeof(PLAYERINFO), IPC_CREAT | 0666)) == -1) {
+    if((shm_id = shmget(IPC_PRIVATE, sizeof(GAMEINFO)+(gameInfo->countPlayer)*sizeof(PLAYERINFO), IPC_CREAT | 0666)) == -1) {
 
         errFunctionFailed("shm creation");
         return EXIT_ERROR;
@@ -30,7 +30,8 @@ void *attachShm(int shm_id){
     //evtl. Flags setzen, falls Connector nur schreibenden und Thinker nur lesenden Zugriff benötigt
     if((shm_address = shmat(shm_id, NULL, 0)) == (void *) -1) {
 
-        errFunctionFailed("shm attachment");
+        //errFunctionFailed("shm attachment");
+        perror("Something wrong with shm");
         exit(EXIT_ERROR);
     }
     else {

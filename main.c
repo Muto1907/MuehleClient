@@ -155,10 +155,12 @@ int main(int argc,char**argv){
     int initial_shm_id; //ID for the shared memory pointing to actual shared memory
 
     //creating and attaching initial shm segment storing the shm id for the actual shm segment
-    if((initial_shm_id = shmget(IPC_PRIVATE, sizeof(int *), IPC_CREAT | IPC_EXCL)) == -1) {
+    if((initial_shm_id = shmget(IPC_PRIVATE, sizeof(int), IPC_CREAT | 0666)) == -1) {
 
         errFunctionFailed("initial_shm_id creation");
     }
+
+    printf("Initial id: %d\n", initial_shm_id);
 
     int *initial_shm_ptr;
     initial_shm_ptr = (int *) attachShm(initial_shm_id);
@@ -180,6 +182,7 @@ int main(int argc,char**argv){
         //Creating and attaching shared memory segment for actual communication with Thinker
         int shm_id;
         shm_id = createShm(gameInfo);
+        printf("Actual id: %d\n", shm_id);
         //initial_shm_ptr points to shm_id
         *initial_shm_ptr = shm_id;
 

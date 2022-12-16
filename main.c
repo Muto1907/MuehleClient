@@ -196,11 +196,11 @@ int main(int argc,char**argv){
         shm_gameInfo = (GAMEINFO *) shmPtr_connector;
         //shm_allPlayerInfo = (PLAYERINFO *)
 
-        shm_gameInfo = gameInfo;
+        *shm_gameInfo = *gameInfo;
 
         //for testing only
-        printf("Connector gameInfo->gameName: %s", gameInfo->gameName);
-        printf("Connector shm_gameInfo->gameName: %s", shm_gameInfo->gameName);
+        printf("Connector gameInfo->gameName: %s\n", gameInfo->gameName);
+        printf("Connector shm_gameInfo->gameName: %s\n", shm_gameInfo->gameName);
 
         //free memory for GAMEINFO *gameInfo
         free(gameInfo);
@@ -211,7 +211,7 @@ int main(int argc,char**argv){
     // Thinker Process starts here
 
     //waiting for child process Connector to create shm segment
-
+    usleep(50000);
     //Attaching actual shared memory segment with id *initial_shm_ptr for internal communication with Connector
     void *shmPtr_thinker;
     shmPtr_thinker = attachShm(*initial_shm_ptr);
@@ -224,7 +224,8 @@ int main(int argc,char**argv){
     //shm_allPlayerInfo = (PLAYERINFO *) 
 
     //for testing only
-    printf("Thinker shm_gameInfo->gameName: %s", shm_gameInfo->gameName);
+    printf("Thinker shm_gameInfo->gameName: %s\n", shm_gameInfo->gameName);
+    printf("Thinker shm_gameInfo->countplayer: %d\n", shm_gameInfo->countPlayer);
     
     // avoids orphan and zombie process, wait for child to die
     while(wait(NULL) > 0){

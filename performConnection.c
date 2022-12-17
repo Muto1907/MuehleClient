@@ -177,18 +177,18 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg){
             printf("Your Playernumber: %d\nYour Playername: %s\nNumber of participating Players: %d\n", myPlayerNumber, myPlayerName, playerCount);
             
             //filling the rest of the gameinfo fields here:
-            gameinfo.myPlayerNumber = myPlayerNumber;
-            gameinfo.countPlayer = playerCount;
+           /* gameinfo.myPlayerNumber = myPlayerNumber;
+            gameinfo.countPlayer = playerCount;*/
 
             //save the playerinformation data into the array of playerinfostructs [0] is us 
-            playerinfo[0].playerNumber = myPlayerNumber;
+            /*playerinfo[0].playerNumber = myPlayerNumber;
             strcpy (playerinfo[0].playerName, myPlayerName);
             playerinfo[0].ready = 1;
             for (int i = 1; i < playerCount; i++){
                 strcpy(playerinfo[i].playerName, enemyPlayerName);
                 playerinfo[i].playerNumber = enemyPlayerNumber;
                 playerinfo[i].ready = isReady;
-            }
+            }*/
             if(isReady){
                 printf("Server: Player Number %d (%s) is ready\n", enemyPlayerNumber, enemyPlayerName);
 				printf("Server: ENDPLAYERS means the Prologue is over\n");
@@ -225,7 +225,21 @@ GAMEINFO* setParam()
     return gameInfo;
 }
 
+PLAYERINFO* setMyPlayerParam()
+{
+    PLAYERINFO* playerInfo = malloc(sizeof(PLAYERINFO));
+    strcpy (playerInfo->playerName, myPlayerName);
+    playerInfo->playerNumber = myPlayerNumber;
+    playerInfo->ready = 1;
+    return playerInfo;
 
+}
+PLAYERINFO* setEnemyPlayerParam()
+{
 
-
-
+    PLAYERINFO* enemyPlayerInfo = malloc(sizeof(PLAYERINFO));
+    strcpy(enemyPlayerInfo->playerName, enemyPlayerName);
+    enemyPlayerInfo->playerNumber = enemyPlayerNumber;
+    enemyPlayerInfo->ready = isReady;
+    return enemyPlayerInfo;
+}

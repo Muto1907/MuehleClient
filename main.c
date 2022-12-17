@@ -176,6 +176,9 @@ int main(int argc,char**argv){
         //filling gameInfo data
         GAMEINFO *gameInfo;
         gameInfo = setParam();
+        PLAYERINFO* playerInfo[gameInfo->countPlayer];
+        playerInfo[0]= setMyPlayerParam();
+        playerInfo[1]= setEnemyPlayerParam();
 
         //Creating and attaching shared memory segment for actual communication with Thinker
         int shm_id;
@@ -196,27 +199,33 @@ int main(int argc,char**argv){
         //pointer to player info array
         PLAYERINFO *shm_allPlayerInfo[shm_gameInfo->countPlayer]; //pointer to player info; actual number of players taken into account
         shm_allPlayerInfo[0]  = (PLAYERINFO *) (((GAMEINFO *) shmPtr_connector)+1); //pointing to address that is sizeof(GAMEINFO) greater than shmPtr_connector address
+        *shm_allPlayerInfo[0] = *playerInfo[0];
         if(shm_gameInfo->countPlayer == 2) {
             shm_allPlayerInfo[1]  = shm_allPlayerInfo[0]+1; //pointing to address that is sizeof(PLAYERINFO) greater than shm_allPlayerInfo[0] 
+            *shm_allPlayerInfo[1] = *playerInfo[1];
         }
 
         //for testing only
-        shm_allPlayerInfo[0]->playerNumber = 132;
+        /*shm_allPlayerInfo[0]->playerNumber = 132;
         if(shm_gameInfo->countPlayer == 2) {
             shm_allPlayerInfo[1]->playerNumber = 465;
-        }   
+        }   */
 
 
         //for testing only
         printf("Connector gameInfo->gameName: %s\n", gameInfo->gameName);
         printf("Connector shm_gameInfo->gameName: %s\n", shm_gameInfo->gameName);
         printf("Connector shm_allPlayerInfo[0]->playerNumber: %d\n", shm_allPlayerInfo[0]->playerNumber);
+         printf("Connector shm_allPlayerInfo[0]->playerName: %s\n", shm_allPlayerInfo[0]->playerName);
         if(shm_gameInfo->countPlayer == 2) {
             printf("Connector shm_allPlayerInfo[1]>playerNumber: %d\n", shm_allPlayerInfo[1]->playerNumber);
+             printf("Connector shm_allPlayerInfo[1]->playerName: %s\n", shm_allPlayerInfo[1]->playerName);
         }   
 
         //free memory for GAMEINFO *gameInfo
         free(gameInfo);
+        free(playerInfo[0]);
+        free(playerInfo[1]);
 
         _exit(0);
     }
@@ -245,7 +254,7 @@ int main(int argc,char**argv){
     printf("Thinker shm_gameInfo->countplayer: %d\n", shm_gameInfo->countPlayer);
     printf("Thinker shm_allPlayerInfo->playerNumber: %d\n", shm_allPlayerInfo[0]->playerNumber);
     if(shm_gameInfo->countPlayer == 2) {
-        printf("Connector shm_allPlayerInfo[1]>playerNumber: %d\n", shm_allPlayerInfo[1]->playerNumber);
+        printf("Thinker shm_allPlayerInfo[1]>playerNumber: %d\n", shm_allPlayerInfo[1]->playerNumber);
     }   
     
     // avoids orphan and zombie process, wait for child to die

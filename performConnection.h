@@ -10,5 +10,8 @@ int performConnection (int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg);
 
 GAMEINFO* setParam();
 //caller has to free the memory on its own using free()
+PLAYERINFO* setMyPlayerParam();
+PLAYERINFO* setEnemyPlayerParam();
+
 
 #endif

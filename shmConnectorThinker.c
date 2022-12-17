@@ -30,8 +30,7 @@ void *attachShm(int shm_id){
     //evtl. Flags setzen, falls Connector nur schreibenden und Thinker nur lesenden Zugriff benötigt
     if((shm_address = shmat(shm_id, NULL, 0)) == (void *) -1) {
 
-        //errFunctionFailed("shm attachment");
-        perror("Something wrong with shm");
+        errFunctionFailed("shm attachment");
         exit(EXIT_ERROR);
     }
     else {

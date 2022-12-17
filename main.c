@@ -160,8 +160,6 @@ int main(int argc,char**argv){
         errFunctionFailed("initial_shm_id creation");
     }
 
-    printf("Initial id: %d\n", initial_shm_id);
-
     int *initial_shm_ptr;
     initial_shm_ptr = (int *) attachShm(initial_shm_id);
 
@@ -182,7 +180,7 @@ int main(int argc,char**argv){
         //Creating and attaching shared memory segment for actual communication with Thinker
         int shm_id;
         shm_id = createShm(gameInfo);
-        printf("Actual id: %d\n", shm_id);
+        
         //initial_shm_ptr points to shm_id
         *initial_shm_ptr = shm_id;
 
@@ -190,17 +188,32 @@ int main(int argc,char**argv){
         shmPtr_connector = attachShm(shm_id);
 
         //creating pointer to addresses in actual shm segment where game info and player infos are stored respectively
+        //pointer to game info
         GAMEINFO *shm_gameInfo;
-        //PLAYERINFO *shm_allPlayerInfo;
-
         shm_gameInfo = (GAMEINFO *) shmPtr_connector;
-        //shm_allPlayerInfo = (PLAYERINFO *)
-
         *shm_gameInfo = *gameInfo;
+
+        //pointer to player info array
+        PLAYERINFO *shm_allPlayerInfo[shm_gameInfo->countPlayer]; //pointer to player info; actual number of players taken into account
+        shm_allPlayerInfo[0]  = (PLAYERINFO *) (((GAMEINFO *) shmPtr_connector)+1); //pointing to address that is sizeof(GAMEINFO) greater than shmPtr_connector address
+        if(shm_gameInfo->countPlayer == 2) {
+            shm_allPlayerInfo[1]  = shm_allPlayerInfo[0]+1; //pointing to address that is sizeof(PLAYERINFO) greater than shm_allPlayerInfo[0] 
+        }
+
+        //for testing only
+        shm_allPlayerInfo[0]->playerNumber = 132;
+        if(shm_gameInfo->countPlayer == 2) {
+            shm_allPlayerInfo[1]->playerNumber = 465;
+        }   
+
 
         //for testing only
         printf("Connector gameInfo->gameName: %s\n", gameInfo->gameName);
         printf("Connector shm_gameInfo->gameName: %s\n", shm_gameInfo->gameName);
+        printf("Connector shm_allPlayerInfo[0]->playerNumber: %d\n", shm_allPlayerInfo[0]->playerNumber);
+        if(shm_gameInfo->countPlayer == 2) {
+            printf("Connector shm_allPlayerInfo[1]>playerNumber: %d\n", shm_allPlayerInfo[1]->playerNumber);
+        }   
 
         //free memory for GAMEINFO *gameInfo
         free(gameInfo);
@@ -218,14 +231,22 @@ int main(int argc,char**argv){
 
     //creating pointer to addresses in acctual shm segment where game info and player infos are stored respectively
     GAMEINFO *shm_gameInfo;
-    //PLAYERINFO *shm_allPlayerInfo;
-
     shm_gameInfo = (GAMEINFO *) shmPtr_thinker;
-    //shm_allPlayerInfo = (PLAYERINFO *) 
+
+    PLAYERINFO *shm_allPlayerInfo[shm_gameInfo->countPlayer];
+    shm_allPlayerInfo[0]  = (PLAYERINFO *) (((GAMEINFO *) shmPtr_thinker)+1);
+    if(shm_gameInfo->countPlayer == 2) {
+        shm_allPlayerInfo[1]  = shm_allPlayerInfo[0]+1; //pointing to address that is sizeof(PLAYERINFO) greater than shm_allPlayerInfo[0] 
+    } 
+
 
     //for testing only
     printf("Thinker shm_gameInfo->gameName: %s\n", shm_gameInfo->gameName);
     printf("Thinker shm_gameInfo->countplayer: %d\n", shm_gameInfo->countPlayer);
+    printf("Thinker shm_allPlayerInfo->playerNumber: %d\n", shm_allPlayerInfo[0]->playerNumber);
+    if(shm_gameInfo->countPlayer == 2) {
+        printf("Connector shm_allPlayerInfo[1]>playerNumber: %d\n", shm_allPlayerInfo[1]->playerNumber);
+    }   
     
     // avoids orphan and zombie process, wait for child to die
     while(wait(NULL) > 0){

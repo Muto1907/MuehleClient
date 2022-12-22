@@ -11,6 +11,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <signal.h>
 
 #include "errorHandling.h"
 #include "performConnection.h"
@@ -83,6 +84,26 @@ int getSocketDescriptorAndConnect(PARAM_CONFIG_T* cfg){
 
     return socketfd;
 }
+
+
+
+void signalHandler(int signal){
+    if(signal == SIGUSR1){
+        //for test purpose
+        printf("thinking...\n");
+        //think();
+    }
+}
+
+
+
+
+
+
+
+
+
+
 
 
 int main(int argc,char**argv){
@@ -211,7 +232,7 @@ int main(int argc,char**argv){
             shm_allPlayerInfo[1]->playerNumber = 465;
         }   */
 
-
+        
         //for testing only
         printf("Connector gameInfo->gameName: %s\n", gameInfo->gameName);
         printf("Connector shm_gameInfo->gameName: %s\n", shm_gameInfo->gameName);
@@ -221,6 +242,8 @@ int main(int argc,char**argv){
             printf("Connector shm_allPlayerInfo[1]>playerNumber: %d\n", shm_allPlayerInfo[1]->playerNumber);
              printf("Connector shm_allPlayerInfo[1]->playerName: %s\n", shm_allPlayerInfo[1]->playerName);
         }   
+        //TEST send signal to thinker
+        kill(gameInfo->idThinker, SIGUSR1);
 
         //free memory for GAMEINFO *gameInfo
         free(gameInfo);
@@ -232,6 +255,8 @@ int main(int argc,char**argv){
 
     // Thinker Process starts here
 
+    //Configure Signalhandling
+    signal(SIGUSR1, signalHandler);
     //waiting for child process Connector to create shm segment
     usleep(50000);
     //Attaching actual shared memory segment with id *initial_shm_ptr for internal communication with Connector

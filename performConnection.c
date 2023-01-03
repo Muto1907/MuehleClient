@@ -11,7 +11,7 @@
 
 #define wordlength 128
 #define BUF 1024
-#define CLIENTVERSION "VERSION 2.1\n"
+#define CLIENTVERSION "VERSION 3.1\n"
 #define EXIT_ERROR  (-1)
 #define MAXPLAYERNUMBER 48
 	

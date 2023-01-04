@@ -17,6 +17,7 @@
 #include "performConnection.h"
 #include "paramConfig.h"
 #include "shmConnectorThinker.h"
+#include "thinking.h"
 
 /*
 #define GAMEKINDNAME "NMMorris"
@@ -24,6 +25,9 @@
 #define HOSTNAME "sysprak.priv.lab.nm.ifi.lmu.de"
 */
 
+void *shmPtr_thinker;
+int *initial_shm_ptr;
+    
 void printAnweisung(){
     printf("-g <GAME-ID> 13-stellige Game-ID\n");
     printf("-p gewünschte Spielernummer\n");
@@ -88,10 +92,16 @@ int getSocketDescriptorAndConnect(PARAM_CONFIG_T* cfg){
 
 
 void signalHandler(int signal){
+    printf("signalHandler %d\n",signal);
     if(signal == SIGUSR1){
         //for test purpose
-        printf("thinking...\n");
-        //think();
+        printf("thinking... shm_id %d\n",*initial_shm_ptr);
+        //Attaching actual shared memory segment with id *initial_shm_ptr for internal communication with Connector
+        //void *shmPtr_thinker; -> global variable
+        shmPtr_thinker = attachShm(*initial_shm_ptr);
+        think(shmPtr_thinker);
+
+         // TODO : free shm(?)
     }
 }
 
@@ -181,7 +191,6 @@ int main(int argc,char**argv){
         errFunctionFailed("initial_shm_id creation");
     }
 
-    int *initial_shm_ptr;
     initial_shm_ptr = (int *) attachShm(initial_shm_id);
 
     //Connector Process
@@ -207,6 +216,7 @@ int main(int argc,char**argv){
         
         //initial_shm_ptr points to shm_id
         *initial_shm_ptr = shm_id;
+        printf("Connector shm_id %d\n",*initial_shm_ptr);
 
         void *shmPtr_connector;
         shmPtr_connector = attachShm(shm_id);
@@ -244,6 +254,7 @@ int main(int argc,char**argv){
         }   
         //TEST send signal to thinker
         kill(gameInfo->idThinker, SIGUSR1);
+        printf("Connector: SIGUSR1 sent\n");
 
         //free memory for GAMEINFO *gameInfo
         free(gameInfo);
@@ -254,15 +265,17 @@ int main(int argc,char**argv){
     }
 
     // Thinker Process starts here
-
+    printf("Thinker after fork, shm_id %d\n",*initial_shm_ptr);
+    //Attaching actual shared memory segment with id *initial_shm_ptr for internal communication with Connector
+    //void *shmPtr_thinker; -> global variable
+    //shmPtr_thinker = attachShm(*initial_shm_ptr);
     //Configure Signalhandling
     signal(SIGUSR1, signalHandler);
+    printf("Thinker: registered handler SIGUSR1\n");
     //waiting for child process Connector to create shm segment
-    usleep(50000);
-    //Attaching actual shared memory segment with id *initial_shm_ptr for internal communication with Connector
-    void *shmPtr_thinker;
-    shmPtr_thinker = attachShm(*initial_shm_ptr);
+    //usleep(1000000);
 
+#if 0
     //creating pointer to addresses in acctual shm segment where game info and player infos are stored respectively
     GAMEINFO *shm_gameInfo;
     shm_gameInfo = (GAMEINFO *) shmPtr_thinker;
@@ -281,7 +294,8 @@ int main(int argc,char**argv){
     if(shm_gameInfo->countPlayer == 2) {
         printf("Thinker shm_allPlayerInfo[1]>playerNumber: %d\n", shm_allPlayerInfo[1]->playerNumber);
     }   
-    
+#endif
+
     // avoids orphan and zombie process, wait for child to die
     while(wait(NULL) > 0){
         //empty

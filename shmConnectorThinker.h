@@ -17,12 +17,18 @@ typedef struct {
 
 } GAMEINFO;
 
+typedef struct
+{
+    int piecenum;
+    char pos[4];
+} PIECEINFO;
+
 typedef struct {
 
     int playerNumber;
     char playerName[256];
     bool ready;
-
+    PIECEINFO piece[9];
 } PLAYERINFO;
 
 int createShm(GAMEINFO *gameInfo);

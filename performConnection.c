@@ -258,6 +258,7 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg){
 
                     else if(strcmp(line, "+ OKTHINK") == 0 ){
                         printf("SERVER: %s\n", serverMsg);
+                        return 0;
                     }
 
                     //else if(strcmp())

@@ -11,7 +11,7 @@
 
 #define wordlength 128
 #define BUF 1024
-#define CLIENTVERSION "VERSION 2.1\n"
+#define CLIENTVERSION "VERSION 3.1\n"
 #define EXIT_ERROR  (-1)
 #define MAXPLAYERNUMBER 48
 	
@@ -36,9 +36,9 @@ int enemyPlayerNumber;
 int isReady;
 
 //initialize structs
-GAMEINFO gameinfo;
-GAMEINFO *gameinfoPointer = &gameinfo;
-PLAYERINFO playerinfo [MAXPLAYERNUMBER];
+
+GAMEINFO *gameinfo;
+
 
 
 
@@ -95,8 +95,7 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg){
     char pseudoscan[BUF];
 
     //fill the struct with PIDs of thinker and connector Connector = child and Thinker = Parent
-    gameinfo.idConnector = getpid();
-    gameinfo.idThinker = getppid();
+
 
     while (1){
 	getServermsg(fileDescriptor);
@@ -160,8 +159,6 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg){
             else{
                   printf("Playing: %s\nGameName: %s\n", gameKindName, gameName);
                   
-                  //fill struct with gameName
-                  strcpy(gameinfo.gameName, gameName);
                   
                 //Sending empty Playernumber means Server decides which number we get. 
 		        sendMsgToServer(fileDescriptor, "PLAYER\n");
@@ -175,20 +172,7 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg){
         //fifth to eighth Server-Message: Message 5 = our Playernumber and Playername, Message 6 = Total player numbers, Message 7 Enemy Player Information, Message 8 ENDPLAYERS 
 		else if(sscanf(serverMsg, "+ YOU %d %[^\t\n]\n+ TOTAL %d\n+ %d %s %d\n+ ENDPLAYERS\n",&myPlayerNumber, myPlayerName,&playerCount, &enemyPlayerNumber, enemyPlayerName, &isReady ) == 6){
             printf("Your Playernumber: %d\nYour Playername: %s\nNumber of participating Players: %d\n", myPlayerNumber, myPlayerName, playerCount);
-            
-            //filling the rest of the gameinfo fields here:
-           /* gameinfo.myPlayerNumber = myPlayerNumber;
-            gameinfo.countPlayer = playerCount;*/
-
-            //save the playerinformation data into the array of playerinfostructs [0] is us 
-            /*playerinfo[0].playerNumber = myPlayerNumber;
-            strcpy (playerinfo[0].playerName, myPlayerName);
-            playerinfo[0].ready = 1;
-            for (int i = 1; i < playerCount; i++){
-                strcpy(playerinfo[i].playerName, enemyPlayerName);
-                playerinfo[i].playerNumber = enemyPlayerNumber;
-                playerinfo[i].ready = isReady;
-            }*/
+         
             if(isReady){
                 printf("Server: Player Number %d (%s) is ready\n", enemyPlayerNumber, enemyPlayerName);
 				printf("Server: ENDPLAYERS means the Prologue is over\n");

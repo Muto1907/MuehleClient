@@ -256,7 +256,6 @@ int main(int argc,char**argv){
     if(shm_gameInfo->countPlayer == 2) {
         printf("Thinker shm_allPlayerInfo[1]>playerNumber: %d\n", shm_allPlayerInfo[1]->playerNumber);
     }   
-    
     // avoids orphan and zombie process, wait for child to die
     while(wait(NULL) > 0){
         //empty

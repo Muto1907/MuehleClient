@@ -177,8 +177,6 @@ int main(int argc,char**argv){
     }
 
 
-    
-    //printf("socket fd: %d\n", socketfd); //for testing only!!
     //TODO error handling for socketfd == -1
 
     pid_t pid; //Process-ID
@@ -197,69 +195,11 @@ int main(int argc,char**argv){
     if((pid = fork()) == 0){
         //Preparing connection to server "sysprak.priv.lab.nm.ifi.lmu.de"
         int socketfd = getSocketDescriptorAndConnect(&config);        
-        //printf("socket fd: %d\n", socketfd); //for testing only!!
+       
         if (socketfd == -1)
             errFunctionFailed ("getSocketDescriptorAndConnect");
         else
-            performConnection(socketfd, game_id, &config);
-        
-        //filling gameInfo data
-        GAMEINFO *gameInfo;
-        gameInfo = setParam();
-        PLAYERINFO* playerInfo[gameInfo->countPlayer];
-        playerInfo[0]= setMyPlayerParam();
-        playerInfo[1]= setEnemyPlayerParam();
-
-        //Creating and attaching shared memory segment for actual communication with Thinker
-        int shm_id;
-        shm_id = createShm(gameInfo);
-        
-        //initial_shm_ptr points to shm_id
-        *initial_shm_ptr = shm_id;
-        printf("Connector shm_id %d\n",*initial_shm_ptr);
-
-        void *shmPtr_connector;
-        shmPtr_connector = attachShm(shm_id);
-
-        //creating pointer to addresses in actual shm segment where game info and player infos are stored respectively
-        //pointer to game info
-        GAMEINFO *shm_gameInfo;
-        shm_gameInfo = (GAMEINFO *) shmPtr_connector;
-        *shm_gameInfo = *gameInfo;
-
-        //pointer to player info array
-        PLAYERINFO *shm_allPlayerInfo[shm_gameInfo->countPlayer]; //pointer to player info; actual number of players taken into account
-        shm_allPlayerInfo[0]  = (PLAYERINFO *) (((GAMEINFO *) shmPtr_connector)+1); //pointing to address that is sizeof(GAMEINFO) greater than shmPtr_connector address
-        *shm_allPlayerInfo[0] = *playerInfo[0];
-        if(shm_gameInfo->countPlayer == 2) {
-            shm_allPlayerInfo[1]  = shm_allPlayerInfo[0]+1; //pointing to address that is sizeof(PLAYERINFO) greater than shm_allPlayerInfo[0] 
-            *shm_allPlayerInfo[1] = *playerInfo[1];
-        }
-
-        //for testing only
-        /*shm_allPlayerInfo[0]->playerNumber = 132;
-        if(shm_gameInfo->countPlayer == 2) {
-            shm_allPlayerInfo[1]->playerNumber = 465;
-        }   */
-
-        
-        //for testing only
-        printf("Connector gameInfo->gameName: %s\n", gameInfo->gameName);
-        printf("Connector shm_gameInfo->gameName: %s\n", shm_gameInfo->gameName);
-        printf("Connector shm_allPlayerInfo[0]->playerNumber: %d\n", shm_allPlayerInfo[0]->playerNumber);
-         printf("Connector shm_allPlayerInfo[0]->playerName: %s\n", shm_allPlayerInfo[0]->playerName);
-        if(shm_gameInfo->countPlayer == 2) {
-            printf("Connector shm_allPlayerInfo[1]>playerNumber: %d\n", shm_allPlayerInfo[1]->playerNumber);
-             printf("Connector shm_allPlayerInfo[1]->playerName: %s\n", shm_allPlayerInfo[1]->playerName);
-        }   
-        //TEST send signal to thinker
-        kill(gameInfo->idThinker, SIGUSR1);
-        printf("Connector: SIGUSR1 sent\n");
-
-        //free memory for GAMEINFO *gameInfo
-        free(gameInfo);
-        free(playerInfo[0]);
-        free(playerInfo[1]);
+            performConnection(socketfd, game_id, &config, initial_shm_ptr);
 
         _exit(0);
     }

@@ -20,7 +20,7 @@ typedef struct {
 typedef struct
 {
     int piecenum;
-    char pos[4];
+    char pos[2];
 } PIECEINFO;
 
 typedef struct {

@@ -11,7 +11,7 @@
 #include "shmConnectorThinker.h"
 
 #define wordlength 128
-#define POSITIONLENGTH 4
+#define POSITIONLENGTH 8
 #define BUF 1024
 #define CLIENTVERSION "VERSION 3.1\n"
 #define EXIT_ERROR  (-1)
@@ -47,6 +47,8 @@ char piecePosition[POSITIONLENGTH];
 int playerNumber;
 char pieceNumberstr[POSITIONLENGTH];
 char playerNumberstr[POSITIONLENGTH];
+char winner[POSITIONLENGTH];
+char move[POSITIONLENGTH];
 
 //initialize structs
 
@@ -252,16 +254,64 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg){
                         }   
 
                     else if(strcmp(line, "+ WAIT") == 0){
+                        printf("SERVER: %s\n", line);
                         sendMsgToServer(fileDescriptor, "OKWAIT\n");
                     }
 
 
                     else if(strcmp(line, "+ OKTHINK") == 0 ){
                         printf("SERVER: %s\n", serverMsg);
+                        //return so we can still test the thinker process
                         return 0;
+                        //we need to send a signal to the thinker HERE:
+
+                        //Test
+                        sendMsgToServer(fileDescriptor, "PLAY A4\n");
+
                     }
 
-                    //else if(strcmp())
+                    else if(strcmp(line, "+ MOVEOK") == 0){
+                        printf("SERVER: %s\n", line);
+                    }
+
+
+                    else if(strcmp(line, "+ GAMEOVER")==0){
+                        printf("GAMEOVER!!!\n");
+                    }
+
+                    else if(sscanf(line, "+ PLAYER0WON %s", winner) == 1){
+                        if(strcmp(winner, "Yes")){
+                            //TO DO Struct erweitern um Winnerdaten zu speichern
+                            //playerinfo[0]->isWinner = 1;
+                            memset(winner, 0, POSITIONLENGTH);
+                        }
+                    }
+                    
+                    else if(sscanf(line, "+ PLAYER1W0N %s", winner) == 1){
+                        if(strcmp(winner, "Yes")){
+                            //TO DO Struct erweitern um Winnerdaten zu speichern
+                            //playerinfo[1]->isWinner = 1;
+                            memset(winner, 0, POSITIONLENGTH);
+                        }
+                    }
+
+                     else if(strcmp(line, "+ QUIT") == 0){
+                        /*if(playerinfo[0]->isWinner && !playerinfo[1]->isWinner){
+                            printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", playerinfo[0]->playerName);
+                        }
+                        else if(!playerinfo[0]->isWinner && playerinfo[1]->isWinner){
+                            printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", playerinfo[1]->playerName);
+                        }
+                        else{
+                            printf("IT'S A DRAW!!!! WELL PLAYED %s and %s\n", playerinfo[0]->playerName, playerinfo[1]->playerName);
+                        }*/
+                        
+                        free(playerinfo[0]);
+                        free(playerinfo[1]);
+                        //detach shm here
+                        return 0;
+
+                    }
                 
                 }
 

@@ -4,6 +4,10 @@
 #include "paramConfig.h"
 #include "shmConnectorThinker.h"
 
+//exposed to be used in main.c
+extern char serverMsg[];
+
+
 void getServermsg(int fileDescriptor);
 void sendMsgToServer(int fileDescriptor, char* msgInput);
 int performConnection (int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg);

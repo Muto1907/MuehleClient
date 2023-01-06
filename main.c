@@ -12,12 +12,17 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <sys/epoll.h>
 
 #include "errorHandling.h"
 #include "performConnection.h"
 #include "paramConfig.h"
 #include "shmConnectorThinker.h"
 #include "thinking.h"
+
+
+#define MAX_EVENTS 4
+#define READ_SIZE 80
 
 /*
 #define GAMEKINDNAME "NMMorris"
@@ -27,6 +32,8 @@
 
 void *shmPtr_thinker;
 int *initial_shm_ptr;
+// Thinker -> Connector Pipe
+int tc_pipe[2];
     
 void printAnweisung(){
     printf("-g <GAME-ID> 13-stellige Game-ID\n");
@@ -94,6 +101,15 @@ int getSocketDescriptorAndConnect(PARAM_CONFIG_T* cfg){
 void signalHandler(int signal){
     printf("signalHandler %d\n",signal);
     if(signal == SIGUSR1){
+        //let the thinker think and send it to the connector
+        //TODO: think based on the last servermsg
+        char buff[] = "THINKING\n";
+        // thinker writes to pipe
+        if(write(tc_pipe[1], buff, strlen(buff) + 1) == -1){
+            perror("thinker can't write.\n");
+            exit(0);
+        }
+
         //for test purpose
         printf("thinking... shm_id %d\n",*initial_shm_ptr);
         //Attaching actual shared memory segment with id *initial_shm_ptr for internal communication with Connector
@@ -116,6 +132,10 @@ void signalHandler(int signal){
 
 
 
+/// @brief 
+/// @param argc 
+/// @param argv 
+/// @return 
 int main(int argc,char**argv){
 
     if (argc <= 1)
@@ -191,6 +211,13 @@ int main(int argc,char**argv){
 
     initial_shm_ptr = (int *) attachShm(initial_shm_id);
 
+
+    // creating pipe and error handling
+    if(pipe(tc_pipe) != 0){
+        perror("pipe() failed.\n");
+        return -1;
+    }
+
     //Connector Process
     if((pid = fork()) == 0){
         //Preparing connection to server "sysprak.priv.lab.nm.ifi.lmu.de"
@@ -205,6 +232,8 @@ int main(int argc,char**argv){
     }
 
     // Thinker Process starts here
+    //close reading pipe for the thinker
+    close(tc_pipe[0]);
     printf("Thinker after fork, shm_id %d\n",*initial_shm_ptr);
     //Attaching actual shared memory segment with id *initial_shm_ptr for internal communication with Connector
     //void *shmPtr_thinker; -> global variable
@@ -235,6 +264,7 @@ int main(int argc,char**argv){
         printf("Thinker shm_allPlayerInfo[1]>playerNumber: %d\n", shm_allPlayerInfo[1]->playerNumber);
     }   
 #endif
+
 
     // avoids orphan and zombie process, wait for child to die
     while(wait(NULL) > 0){

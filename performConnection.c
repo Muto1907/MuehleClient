@@ -51,9 +51,13 @@ char winner[POSITIONLENGTH];
 char move[POSITIONLENGTH];
 
 //initialize structs
+//initial structs before shared memory is created
+GAMEINFO *gameInfo;
+PLAYERINFO *allPlayerInfo[MAXPLAYERNUMBER];
 
-GAMEINFO *shm_gameinfo;
-PLAYERINFO *shm_allPlayerinfo[MAXPLAYERNUMBER];
+//structs in shared memory
+GAMEINFO *shm_gameInfo;
+PLAYERINFO *shm_allPlayerInfo[MAXPLAYERNUMBER]; 
 
 
 
@@ -126,16 +130,10 @@ void finishSetup(int *initial_shm_ptr){
     //filling the structs
 
     //local gameInfo only for creation of actual shm segment
-    GAMEINFO *gameInfo = malloc(sizeof(GAMEINFO));
-    /* PLAYERINFO* playerInfo[gameInfo->countPlayer];
-
-    for(int i=0; i<gameInfo->countPlayer; i++){
-        playerInfo[i] = malloc(sizeof(PLAYERINFO)); 
-    } */
+    gameInfo = malloc(sizeof(GAMEINFO));
 
     //filling gameInfo data
     set_GameParam(gameInfo);
-    /* setPlayerParam(playerInfo); */
 
     //Creating and attaching shared memory segment for actual communication with Thinker
     int shm_id;
@@ -155,16 +153,19 @@ void finishSetup(int *initial_shm_ptr){
     *shm_gameInfo = *gameInfo;
 
     //pointer to player info array
-    PLAYERINFO *shm_allPlayerInfoTemp[shm_gameInfo->countPlayer]; //pointer to player info; actual number of players taken into account
-    *shm_allPlayerInfo = *shm_allPlayerInfoTemp;
-    shm_allPlayerInfo[0]  = (PLAYERINFO *) (shm_gameInfo+1); //pointing to address after shm_gameInfo
-    set_MyPlayerParam(shm_allPlayerInfo[0]);
-    //*shm_allPlayerInfo[0] = *playerInfo[0];
-    if(shm_gameInfo->countPlayer == 2) {
+    shm_allPlayerInfo[0] = (PLAYERINFO *) (shm_gameInfo+1); //pointing to address after shm_gameInfo
+    *shm_allPlayerInfo[0] = *allPlayerInfo[0]; 
+    for(int i=1; i < shm_gameInfo->countPlayer; i++){
+        shm_allPlayerInfo[i]  = (PLAYERINFO *) shm_allPlayerInfo[i-1]+1; //pointing to address that is sizeof(PLAYERINFO) greater than shm_allPlayerInfo[0] 
+        *shm_allPlayerInfo[i] = *allPlayerInfo[i]; 
+    } 
+    //PLAYERINFO *shm_allPlayerInfo[shm_gameInfo->countPlayer]; //pointer to player info; actual number of players taken into account
+    
+   /*  if(shm_gameInfo->countPlayer == 2) {
         shm_allPlayerInfo[1]  = (PLAYERINFO *) shm_allPlayerInfo[0]+1; //pointing to address that is sizeof(PLAYERINFO) greater than shm_allPlayerInfo[0] 
-        set_EnemyPlayerParam(shm_allPlayerInfo[1]);
-        //*shm_allPlayerInfo[1] = *playerInfo[1];
+        *shm_allPlayerInfo[1] = *allPlayerInfo[1]; 
     }
+    *shm_allPlayerInfo_ptr = shm_allPlayerInfo; */
 
     
     //for testing only
@@ -182,7 +183,10 @@ void finishSetup(int *initial_shm_ptr){
 
     //cleanup
 
-    //free memory for GAMEINFO *gameInfo
+    //free memory for GAMEINFO *gameInfo and PLAYERINFO *allPlayerInfo
+    for(int i=0; i< gameInfo->countPlayer; i++){
+        free(allPlayerInfo[i]);
+    } 
     free(gameInfo);
 } 
 
@@ -277,6 +281,8 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                     //fifth Server-Message: our Playernumber and Playername
                     else if(sscanf(line, "+ YOU %d %[^\t\n]", &myPlayerNumber, myPlayerName)){
                         printf("SERVER: Your Playernumber: %d\nSERVER: Your Playername: %s\n", myPlayerNumber, myPlayerName);
+                        allPlayerInfo[myPlayerNumber] = malloc(sizeof(PLAYERINFO));
+                        set_MyPlayerParam(allPlayerInfo[myPlayerNumber]);
                     }
 
                     //sixth ++ Server-Message: Total Player Number and Data of enemy Players
@@ -286,6 +292,9 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                             if (j == myPlayerNumber) continue;
                             strcpy(line, linesOfServerMsg[i +j]);
                             if(sscanf(line, "+ %d %s %d", &enemyPlayerNumber, enemyPlayerName, &isReady) == 3){
+                                //Filling the Struct with enemyPlayer info
+                                allPlayerInfo[j] = malloc(sizeof(PLAYERINFO));
+                                set_EnemyPlayerParam(allPlayerInfo[j]);
                                 if(isReady){
                                     printf("SERVER: Player Number %d (%s) is ready!\n", enemyPlayerNumber, enemyPlayerName);
                                 }
@@ -321,8 +330,8 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
 
                     else if(sscanf(line,"+ PIECE%d.%d %s", &playerNumber, &pieceNumber, piecePosition) == 3){
                         //pieceNumber = atoi(pieceNumberstr);
-                        strcpy(shm_allPlayerinfo[playerNumber]->piece[pieceNumber].pos, piecePosition);
-                        shm_allPlayerinfo[playerNumber]->piece[pieceNumber].piecenum = pieceNumber;
+                        strcpy(shm_allPlayerInfo[playerNumber]->piece[pieceNumber].pos, piecePosition);
+                        shm_allPlayerInfo[playerNumber]->piece[pieceNumber].piecenum = pieceNumber;
                         printf("PIECE%d.%d %s\n",playerNumber, pieceNumber, piecePosition);
                         memset(piecePosition,0,POSITIONLENGTH);
                         //memset(pieceNumberstr,0, POSITIONLENGTH);
@@ -341,8 +350,6 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                         printf("SERVER: ENDPIECESLIST.\n");
                         sendMsgToServer(fileDescriptor,"THINKING\n");
                         //printf("Message received\n");
-                        /*free(playerinfo[0]);
-                        free(playerinfo[1]);*/
                         }   
 
                     else if(strcmp(line, "+ WAIT") == 0){
@@ -398,8 +405,6 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                             printf("IT'S A DRAW!!!! WELL PLAYED %s and %s\n", playerinfo[0]->playerName, playerinfo[1]->playerName);
                         }*/
                         
-                        /* free(playerinfo[0]);
-                        free(playerinfo[1]); */
                         //detach shm here
                         return 0;
 
@@ -411,6 +416,21 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
         }
         
     }
+    return 0;
+}
+
+char** serverMsgToLines(char* server_Msg, char** linesOfServerMsg){
+    memset(linesOfServerMsg, 0, BUF);
+    char *saveptr;
+    int numToken = 0;
+    char *token;
+    char *presentToken = server_Msg;
+
+    while((token = strtok_r(presentToken,"\n", &saveptr)) != NULL){
+        linesOfServerMsg[numToken] = token;
+        numToken++;
+        presentToken = NULL;
     }
-	return 0;
+
+    return linesOfServerMsg;   
 }

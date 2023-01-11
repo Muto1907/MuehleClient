@@ -136,6 +136,7 @@ void finishSetup(int *initial_shm_ptr){
     set_GameParam(gameInfo);
 
     //Creating and attaching shared memory segment for actual communication with Thinker
+    //needs current number of players given in gameInfo
     int shm_id;
     shm_id = createShm(gameInfo);
     
@@ -159,13 +160,8 @@ void finishSetup(int *initial_shm_ptr){
         shm_allPlayerInfo[i]  = (PLAYERINFO *) shm_allPlayerInfo[i-1]+1; //pointing to address that is sizeof(PLAYERINFO) greater than shm_allPlayerInfo[0] 
         *shm_allPlayerInfo[i] = *allPlayerInfo[i]; 
     } 
+
     //PLAYERINFO *shm_allPlayerInfo[shm_gameInfo->countPlayer]; //pointer to player info; actual number of players taken into account
-    
-   /*  if(shm_gameInfo->countPlayer == 2) {
-        shm_allPlayerInfo[1]  = (PLAYERINFO *) shm_allPlayerInfo[0]+1; //pointing to address that is sizeof(PLAYERINFO) greater than shm_allPlayerInfo[0] 
-        *shm_allPlayerInfo[1] = *allPlayerInfo[1]; 
-    }
-    *shm_allPlayerInfo_ptr = shm_allPlayerInfo; */
 
     
     //for testing only
@@ -175,7 +171,7 @@ void finishSetup(int *initial_shm_ptr){
     printf("In performConnection: shm_allPlayerInfo[0]->playerName: %s\n", shm_allPlayerInfo[0]->playerName);
     if(shm_gameInfo->countPlayer == 2) {
         printf("In performConnection: shm_allPlayerInfo[1]->playerNumber: %d\n", shm_allPlayerInfo[1]->playerNumber);
-            printf("In performConnection: shm_allPlayerInfo[1]->playerName: %s\n", shm_allPlayerInfo[1]->playerName);
+        printf("In performConnection: shm_allPlayerInfo[1]->playerName: %s\n", shm_allPlayerInfo[1]->playerName);
     }   
     //TEST send signal to thinker
     kill(shm_gameInfo->idThinker, SIGUSR1);

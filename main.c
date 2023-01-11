@@ -121,17 +121,6 @@ void signalHandler(int signal){
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
 /// @brief 
 /// @param argc 
 /// @param argv 
@@ -172,14 +161,6 @@ int main(int argc,char**argv){
 
     LoadConfigParam(&config,configFile);
     DumpConfig(&config);
-
-    /*// Test, if game-ID has 13 digits
-    int counter = 1;
-    long long zahl = game_id;
-    while(zahl > 9){
-        zahl /= 10;
-        counter++;
-    }*/
 
     if(strlen(game_id) != 13){
         errPrintInvalidParam("Game-ID");
@@ -235,14 +216,10 @@ int main(int argc,char**argv){
     //close reading pipe for the thinker
     close(tc_pipe[0]);
     printf("Thinker after fork, shm_id %d\n",*initial_shm_ptr);
-    //Attaching actual shared memory segment with id *initial_shm_ptr for internal communication with Connector
-    //void *shmPtr_thinker; -> global variable
-    //shmPtr_thinker = attachShm(*initial_shm_ptr);
+
     //Configure Signalhandling
     signal(SIGUSR1, signalHandler);
     printf("Thinker: registered handler SIGUSR1\n");
-    //waiting for child process Connector to create shm segment
-    //usleep(1000000);
 
 #if 0
     //creating pointer to addresses in acctual shm segment where game info and player infos are stored respectively

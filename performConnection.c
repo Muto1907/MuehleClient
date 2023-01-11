@@ -162,17 +162,7 @@ void finishSetup(int *initial_shm_ptr){
     } 
 
     //PLAYERINFO *shm_allPlayerInfo[shm_gameInfo->countPlayer]; //pointer to player info; actual number of players taken into account
-
     
-    //for testing only
-    printf("In performConnection: gameInfo->gameName: %s\n", gameInfo->gameName);
-    printf("In performConnection: shm_gameInfo->gameName: %s\n", shm_gameInfo->gameName);
-    printf("In performConnection: shm_allPlayerInfo[0]->playerNumber: %d\n", shm_allPlayerInfo[0]->playerNumber);
-    printf("In performConnection: shm_allPlayerInfo[0]->playerName: %s\n", shm_allPlayerInfo[0]->playerName);
-    if(shm_gameInfo->countPlayer == 2) {
-        printf("In performConnection: shm_allPlayerInfo[1]->playerNumber: %d\n", shm_allPlayerInfo[1]->playerNumber);
-        printf("In performConnection: shm_allPlayerInfo[1]->playerName: %s\n", shm_allPlayerInfo[1]->playerName);
-    }   
     //TEST send signal to thinker
     kill(shm_gameInfo->idThinker, SIGUSR1);
     printf("Connector: SIGUSR1 sent\n");

@@ -221,27 +221,6 @@ int main(int argc,char**argv){
     signal(SIGUSR1, signalHandler);
     printf("Thinker: registered handler SIGUSR1\n");
 
-#if 0
-    //creating pointer to addresses in acctual shm segment where game info and player infos are stored respectively
-    GAMEINFO *shm_gameInfo;
-    shm_gameInfo = (GAMEINFO *) shmPtr_thinker;
-
-    PLAYERINFO *shm_allPlayerInfo[shm_gameInfo->countPlayer];
-    shm_allPlayerInfo[0]  = (PLAYERINFO *) (((GAMEINFO *) shmPtr_thinker)+1);
-    if(shm_gameInfo->countPlayer == 2) {
-        shm_allPlayerInfo[1]  = shm_allPlayerInfo[0]+1; //pointing to address that is sizeof(PLAYERINFO) greater than shm_allPlayerInfo[0] 
-    } 
-
-
-    //for testing only
-    printf("Thinker shm_gameInfo->gameName: %s\n", shm_gameInfo->gameName);
-    printf("Thinker shm_gameInfo->countplayer: %d\n", shm_gameInfo->countPlayer);
-    printf("Thinker shm_allPlayerInfo->playerNumber: %d\n", shm_allPlayerInfo[0]->playerNumber);
-    if(shm_gameInfo->countPlayer == 2) {
-        printf("Thinker shm_allPlayerInfo[1]>playerNumber: %d\n", shm_allPlayerInfo[1]->playerNumber);
-    }   
-#endif
-
 
     // avoids orphan and zombie process, wait for child to die
     while(wait(NULL) > 0){

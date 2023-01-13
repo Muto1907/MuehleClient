@@ -34,6 +34,7 @@ void *shmPtr_thinker;
 int *initial_shm_ptr;
 // Thinker -> Connector Pipe
 int tc_pipe[2];
+bool flag = true;
     
 void printAnweisung(){
     printf("-g <GAME-ID> 13-stellige Game-ID\n");
@@ -114,7 +115,8 @@ void signalHandler(int signal){
         printf("thinking... shm_id %d\n",*initial_shm_ptr);
         //Attaching actual shared memory segment with id *initial_shm_ptr for internal communication with Connector
         //void *shmPtr_thinker; -> global variable
-        shmPtr_thinker = attachShm(*initial_shm_ptr);
+        //if(flag == true)
+			shmPtr_thinker = attachShm(*initial_shm_ptr);
         think(shmPtr_thinker);
 
          // TODO : free shm(?)
@@ -298,7 +300,9 @@ int main(int argc,char**argv){
     printf("Thinker after fork, shm_id %d\n",*initial_shm_ptr);
 
     //Configure Signalhandling
+    //flag = true;
     signal(SIGUSR1, signalHandler);
+    //flag = false;
     printf("Thinker: registered handler SIGUSR1\n");
 
 

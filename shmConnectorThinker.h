@@ -14,6 +14,7 @@ typedef struct {
     int countPlayer;
     pid_t idThinker;
     pid_t idConnector;
+    bool flagProvideMove;
 
 } GAMEINFO;
 

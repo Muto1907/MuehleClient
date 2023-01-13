@@ -177,9 +177,6 @@ int main(int argc,char**argv){
         }
     }
 
-
-    //TODO error handling for socketfd == -1
-
     pid_t pid; //Process-ID
 
     int initial_shm_id; //ID for the shared memory pointing to actual shared memory

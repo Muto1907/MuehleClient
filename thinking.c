@@ -15,10 +15,10 @@ void think(void* ptr_thinker)
 
     GAMEINFO* game = (GAMEINFO*) ptr_thinker;
     PLAYERINFO *player = (PLAYERINFO *) (game+1);
-    if(game.flagProvideMove)
+    if(game->flagProvideMove)
     {
 		dumpGameCurrent(player, game);
-		flagProvideMove = false;
+		game->flagProvideMove = false;
 		// TODO : KI
 	}
 }

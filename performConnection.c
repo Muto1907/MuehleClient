@@ -347,8 +347,8 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                     else if(strcmp(line, "+ OKTHINK") == 0 ){
                         printf("SERVER: %s\n", serverMsg);
                         //return so we can still test the thinker process
-                        return 0;
-                        //we need to send a signal to the thinker HERE:
+                        //return 0; -> if not comment: board printed 2 times
+                        //we need to send a signal to the thinker HERE: + flagProvideMove = true;
 
                         //Test
                         sendMsgToServer(fileDescriptor, "PLAY A4\n");

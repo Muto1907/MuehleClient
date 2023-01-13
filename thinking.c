@@ -15,9 +15,15 @@ void think(void* ptr_thinker)
 
     GAMEINFO* game = (GAMEINFO*) ptr_thinker;
     PLAYERINFO *player = (PLAYERINFO *) (game+1);
-    dumpGameCurrent(player, game);
+    if(game.flagProvideMove)
+    {
+		dumpGameCurrent(player, game);
+		flagProvideMove = false;
+		// TODO : KI
+	}
 }
 
+#if 0
 static void setTestPieces (PLAYERINFO* player)
 {
     int i;
@@ -31,6 +37,7 @@ static void setTestPieces (PLAYERINFO* player)
         player[1].piece[i].pos[1] = '0' + i;
     }
 }
+#endif
 
 static char *boardtemplate[13] = 
 {
@@ -63,7 +70,7 @@ static int boardposY[24] =
      4,  4,  4,  6,  8,  8,  8,  6  //C0 - C7
 };
 
-static int MapPosition( char* pos)
+static int MapPosition(char* pos)
 {
     int res = -1;
     if (pos[0] >= 'A' && pos[0] <= 'C' && pos[1] >= '0' && pos[1] <= '7')
@@ -77,7 +84,7 @@ void dumpGameCurrent(PLAYERINFO* player, GAMEINFO* game)
 {
     printf("dumpGameCurrent: Gameinfo %p, playerinfo %p\n",game,player);
 
-    setTestPieces(player); //testing
+    //setTestPieces(player); //testing
     int numPlayer = game->countPlayer;
 
     char    board[13][28];

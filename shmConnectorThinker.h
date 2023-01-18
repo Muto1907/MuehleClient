@@ -29,7 +29,9 @@ typedef struct {
     int playerNumber;
     char playerName[256];
     bool ready;
+    bool isWinner;
     PIECEINFO piece[9];
+
 } PLAYERINFO;
 
 int createShm(GAMEINFO *gameInfo);

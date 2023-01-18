@@ -172,8 +172,8 @@ void finishSetup(int *initial_shm_ptr){
     //PLAYERINFO *shm_allPlayerInfo[shm_gameInfo->countPlayer]; //pointer to player info; actual number of players taken into account
     
     //TEST send signal to thinker
-    kill(shm_gameInfo->idThinker, SIGUSR1);
-    printf("Connector: SIGUSR1 sent\n");
+    //kill(shm_gameInfo->idThinker, SIGUSR1);
+    //printf("Connector: SIGUSR1 sent\n");
 
     //cleanup
 
@@ -229,8 +229,8 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
 
     while (1){
         event_count = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
-        for (int i = 0; i < event_count; i++){
-            if(events[i].data.fd == fileDescriptor){       
+        for (int j = 0; j < event_count; j++){
+            if(events[j].data.fd == fileDescriptor){       
                     
                 getServermsg(fileDescriptor);
                 serverMessageCount++;
@@ -372,6 +372,9 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                             else if(strcmp(line, "+ ENDPIECELIST") == 0){
                                 printf("SERVER: ENDPIECESLIST.\n");
                                 sendMsgToServer(fileDescriptor,"THINKING\n");
+                                //sending signal to thinker
+                                shm_gameInfo->flagProvideMove = true;
+                                kill(gameInfo->idThinker, SIGUSR1);
                                 //printf("Message received\n");
                                 }   
 
@@ -383,14 +386,9 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
 
                             else if(strcmp(line, "+ OKTHINK") == 0 ){
                                 printf("SERVER: %s\n", serverMsg);
-                                //return so we can still test the thinker process
-                                //return 0; -> if not comment: board printed 2 times
-                                //we need to send a signal to the thinker HERE: + flagProvideMove = true;
-                                memset(moveCommand, 0, BUF);
-                                strcpy(moveCommand, "PLAY ");
-                                strcat(moveCommand, move);
-                                //Test
+                                //TEST
                                 sendMsgToServer(fileDescriptor, moveCommand);
+
 
                             }
 
@@ -406,7 +404,7 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                             else if(sscanf(line, "+ PLAYER0WON %s", winner) == 1){
                                 if(strcmp(winner, "Yes")){
                                     //TO DO Struct erweitern um Winnerdaten zu speichern
-                                    //playerinfo[0]->isWinner = 1;
+                                    allPlayerInfo[0]->isWinner = 1;
                                     memset(winner, 0, POSITIONLENGTH);
                                 }
                             }
@@ -414,21 +412,21 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                             else if(sscanf(line, "+ PLAYER1W0N %s", winner) == 1){
                                 if(strcmp(winner, "Yes")){
                                     //TO DO Struct erweitern um Winnerdaten zu speichern
-                                    //playerinfo[1]->isWinner = 1;
+                                    allPlayerInfo[1]->isWinner = 1;
                                     memset(winner, 0, POSITIONLENGTH);
                                 }
                             }
 
                             else if(strcmp(line, "+ QUIT") == 0){
-                                /*if(playerinfo[0]->isWinner && !playerinfo[1]->isWinner){
-                                    printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", playerinfo[0]->playerName);
+                                if(allPlayerInfo[0]->isWinner && !allPlayerInfo[1]->isWinner){
+                                    printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", allPlayerInfo[0]->playerName);
                                 }
-                                else if(!playerinfo[0]->isWinner && playerinfo[1]->isWinner){
-                                    printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", playerinfo[1]->playerName);
+                                else if(!allPlayerInfo[0]->isWinner && allPlayerInfo[1]->isWinner){
+                                    printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", allPlayerInfo[1]->playerName);
                                 }
                                 else{
-                                    printf("IT'S A DRAW!!!! WELL PLAYED %s and %s\n", playerinfo[0]->playerName, playerinfo[1]->playerName);
-                                }*/
+                                    printf("IT'S A DRAW!!!! WELL PLAYED %s and %s\n", allPlayerInfo[0]->playerName, allPlayerInfo[1]->playerName);
+                                }
 
                                 if(close(epoll_fd)){
                                 perror("Failed to close epoll file descriptor.\n");
@@ -447,12 +445,14 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                     }     
                 }
             }
-            else if(events[i].data.fd == tc_pipe[0]){
+            else if(events[j].data.fd == tc_pipe[0]){
                     if(read(tc_pipe[0], &move, READ_SIZE + 1) == -1){
                         perror("connector process can't read from pipe.\n");
                         return -1;
                     }
                     else{
+                        memset(moveCommand, 0, BUF);
+                        strcpy(moveCommand, "PLAY ");
                         strcat(moveCommand, move);
 
                     }                

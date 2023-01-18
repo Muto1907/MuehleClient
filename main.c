@@ -103,14 +103,7 @@ void signalHandler(int signal){
 
     printf("signalHandler %d\n",signal);
     if(signal == SIGUSR1){
-        //let the thinker think and send it to the connector
-        //TODO: think based on the last servermsg
-        char buff[] = "A1\n";
-        // thinker writes to pipe
-        if(write(tc_pipe[1], buff, strlen(buff) + 1) == -1){
-            perror("thinker can't write.\n");
-            exit(0);
-        }
+
 
         //for test purpose
         printf("thinking... shm_id %d\n",*initial_shm_ptr);
@@ -121,7 +114,7 @@ void signalHandler(int signal){
             shmPtr_thinker = attachShm(*initial_shm_ptr);
             flagInitialiseThinker = false;
         }
-        think(shmPtr_thinker);
+        think(shmPtr_thinker, tc_pipe);
     }
 }
 

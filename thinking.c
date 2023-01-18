@@ -9,16 +9,28 @@
 #include "shmConnectorThinker.h"
 #include "thinking.h"
 
-void think(void* ptr_thinker)
+void think(void* ptr_thinker, int tc_pipe[])
 {
     printf("thinking 2.0...\n");
+    
 
     GAMEINFO* game = (GAMEINFO*) ptr_thinker;
     PLAYERINFO *player = (PLAYERINFO *) (game+1);
     if(game->flagProvideMove)
     {
-		dumpGameCurrent(player, game);
-		game->flagProvideMove = false;
+        dumpGameCurrent(player, game);
+        //let the thinker think and send it to the connector
+        char buff[] = "A1\n";
+        // thinker writes to pipe
+        if(write(tc_pipe[1], buff, strlen(buff) + 1) == -1){
+            perror("thinker can't write.\n");
+            exit(0);
+        }
+
+
+
+
+        game->flagProvideMove = false;
 		// TODO : KI
 	}
 }

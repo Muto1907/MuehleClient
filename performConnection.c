@@ -17,7 +17,7 @@
 #define CLIENTVERSION "VERSION 3.1\n"
 #define EXIT_ERROR  (-1)
 #define MAXPLAYERNUMBER 48
-#define READ_SIZE 80
+#define READ_SIZE 7
 #define MAX_EVENTS 4
 
 	

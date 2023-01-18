@@ -9,7 +9,7 @@ extern char serverMsg[];
 
 void getServermsg(int fileDescriptor);
 void sendMsgToServer(int fileDescriptor, char* msgInput);
-int performConnection (int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int *initial_shm);
+int performConnection (int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int *initial_shm, int tc_pipe[]);
 char** serverMsgToLines(char* serverMsg, char** linesOfServermsg);
 
 GAMEINFO* setParam();

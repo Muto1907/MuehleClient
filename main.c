@@ -105,7 +105,7 @@ void signalHandler(int signal){
     if(signal == SIGUSR1){
         //let the thinker think and send it to the connector
         //TODO: think based on the last servermsg
-        char buff[] = "THINKING\n";
+        char buff[] = "A1\n";
         // thinker writes to pipe
         if(write(tc_pipe[1], buff, strlen(buff) + 1) == -1){
             perror("thinker can't write.\n");
@@ -202,24 +202,27 @@ int main(int argc,char**argv){
 
     //Connector Process
     if((pid = fork()) == 0){
+        
+        //connector closes write
+        close(tc_pipe[1]);
+
         //Preparing connection to server "sysprak.priv.lab.nm.ifi.lmu.de"
         int socketfd = getSocketDescriptorAndConnect(&config);        
        
         if (socketfd == -1)
             errFunctionFailed ("getSocketDescriptorAndConnect");
         else
-            performConnection(socketfd, game_id, &config, initial_shm_ptr);
+            performConnection(socketfd, game_id, &config, initial_shm_ptr, tc_pipe);
 
 
-        char buffer[READ_SIZE +1];
+/*        char buffer[READ_SIZE +1];
         int event_count = 0;
         //size_t bytes_read;
         struct epoll_event event_sock, event_pipe, events[MAX_EVENTS];
 
         int running = 1, epoll_fd = epoll_create1(0);
 
-        //connector closes write
-        close(tc_pipe[1]);
+
 
         if(epoll_fd == -1){
             perror("Failed to create epoll file descriptor.\n");
@@ -288,7 +291,7 @@ int main(int argc,char**argv){
         if(close(epoll_fd)){
             perror("Failed to close epoll file descriptor.\n");
             return -1;
-        }
+        }*/
         _exit(0);
 
     }

@@ -9,6 +9,9 @@
 #include "shmConnectorThinker.h"
 #include "thinking.h"
 
+const PIECEINFO dummy = {-1, -1, "NN"};
+PIECEINFO boardArr[3][8] = {{dummy}};
+
 void think(void* ptr_thinker, int tc_pipe[])
 {
     printf("thinking 2.0...\n");
@@ -117,4 +120,36 @@ void dumpGameCurrent(PLAYERINFO* player, GAMEINFO* game)
         }
     for (i=0;i<13;i++)
         printf("%s\n",board[i]);
+}
+
+void mapCoord(PIECEINFO* piece)
+{
+	int coordR = 0;
+	
+	switch(piece->pos[0])
+	{
+		case 'A':
+			coordR = 0;
+			break;
+		case 'B':
+			coordR = 1;
+			break;
+		case 'C':
+			coordR = 2;
+			break;
+		default:
+			break;
+	}
+	
+	int coordS = (int)(piece->pos[1]) % 8;
+	
+	boardArr[coordR][coordS] = *piece;
+}
+
+bool isFree(char* pos)
+{
+	bool free = false;
+	if(strcmp(pos, dummy.pos))
+		free = true;
+	return free;
 }

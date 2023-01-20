@@ -355,6 +355,7 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                                 //pieceNumber = atoi(pieceNumberstr);
                                 strcpy(shm_allPlayerInfo[playerNumber]->piece[pieceNumber].pos, piecePosition);
                                 shm_allPlayerInfo[playerNumber]->piece[pieceNumber].piecenum = pieceNumber;
+                                shm_allPlayerInfo[playerNumber]->piece[pieceNumber].playerNum = playerNumber;
                                 printf("PIECE%d.%d %s\n",playerNumber, pieceNumber, piecePosition);
                                 memset(piecePosition,0,POSITIONLENGTH);
                                 //memset(pieceNumberstr,0, POSITIONLENGTH);

@@ -15,11 +15,13 @@ typedef struct {
     pid_t idThinker;
     pid_t idConnector;
     bool flagProvideMove;
+    //bool gameGoing;
 
 } GAMEINFO;
 
 typedef struct
 {
+	int playerNum;
     int piecenum;
     char pos[2];
 } PIECEINFO;

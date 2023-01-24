@@ -146,10 +146,53 @@ void mapCoord(PIECEINFO* piece)
 	boardArr[coordR][coordS] = *piece;
 }
 
+int getMapCoordRing(PIECEINFO* piece) 
+{
+	int coordR = 0;
+	
+	switch(piece->pos[0])
+	{
+		case 'A':
+			coordR = 0;
+			break;
+		case 'B':
+			coordR = 1;
+			break;
+		case 'C':
+			coordR = 2;
+			break;
+		default:
+			break;
+	}
+
+    return coordR;
+}
+
+//takes boardArray coordinates and returns ring coordinate coordR in prolog syntax
+char getCoordR(int coordR, int coordS) {
+    char ringNumber;
+    ringNumber = boardArr[coordR][coordS].pos[0];
+    return ringNumber;
+}
+//takes boardArray coordinates and returns ring coordinate coordR in prolog syntax
+char getCoordS(int coordR, int coordS) {
+    char ringPosition;
+    ringPosition = boardArr[coordR][coordS].pos[1];
+    return ringPosition;
+}
+
 bool isFree(char* pos)
 {
 	bool free = false;
 	if(strcmp(pos, dummy.pos))
+		free = true;
+	return free;
+}
+
+bool isFreeBoardArr(int* pos) {
+    bool free = false;
+    PIECEINFO currentPiece = boardArr[pos[0]][pos[1]];
+	if(strcmp(currentPiece.pos, dummy.pos))
 		free = true;
 	return free;
 }

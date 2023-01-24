@@ -25,5 +25,8 @@ shmConnectorThinker.o : shmConnectorThinker.c shmConnectorThinker.h
 thinking.o : thinking.c thinking.h
 	$(CC) $(FLAGS) -c thinking.c
 
+movePhase.o : movePhase.c movePhase.h
+	$$(CC) $(FLAGS) -c movePhase.c
+
 clean:
 	rm -f *.o ./sysprak-client

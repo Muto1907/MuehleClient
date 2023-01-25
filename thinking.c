@@ -16,6 +16,8 @@
 
 const PIECEINFO dummy = {-1, -1, "N"};
 PIECEINFO boardArr[3][8];
+char result[6];
+int resultingPos[2];
 
 void think(void* ptr_thinker, int tc_pipe[])
 {
@@ -146,9 +148,11 @@ void dumpGameCurrent(PLAYERINFO* player, GAMEINFO* game)
         printf("%s\n",board[i]);
 }
 
-void mapCoord(PIECEINFO piece)
+int *mapCoord(PIECEINFO piece)
 {
-	int coordR = 0;
+	memset(resultingPos, 0, 8);
+
+    int coordR = 0;
 	
 	switch(piece.pos[0])
 	{
@@ -168,57 +172,43 @@ void mapCoord(PIECEINFO piece)
 	int coordS = ((int)(piece.pos[1]) - '0') % 8;
 	
 	boardArr[coordR][coordS] = piece;
+
+    resultingPos[0] = coordR;
+    resultingPos[1] = coordS;
+
+    return resultingPos;
 }
 
-int getMapCoordRing(PIECEINFO* piece) 
-{
-	int coordR = 0;
-	
-	switch(piece->pos[0])
+char* remapCoordinates(int first, int second){	
+
+    memset(result, 0, 6);
+
+	switch(first)
 	{
-		case 'A':
-			coordR = 0;
+		case 0:
+			result[0] = 'A';
 			break;
-		case 'B':
-			coordR = 1;
+		case 1:
+			result[0] = 'B';
 			break;
-		case 'C':
-			coordR = 2;
+		case 2:
+			result[0] = 'C';
 			break;
 		default:
 			break;
 	}
+    result[1] = second + '0';
+    //sprintf(result+1, "%d", second);
+    //result[2] = '\0';
 
-    return coordR;
-}
-
-
-
-//takes boardArray coordinates and returns ring coordinate coordR in prolog syntax
-char getCoordR(int coordR, int coordS) {
-    char ringNumber;
-    ringNumber = boardArr[coordR][coordS].pos[0];
-    return ringNumber;
-}
-//takes boardArray coordinates and returns ring coordinate coordS in prolog syntax
-char getCoordS(int coordR, int coordS) {
-    char ringPosition;
-    ringPosition = boardArr[coordR][coordS].pos[1];
-    return ringPosition;
+    //printf("first: %c, and second: %c", result[0], result[1]);
+    return result;
 }
 
 bool isFree(char* pos)
 {
 	bool free = false;
 	if(strcmp(pos, dummy.pos) == 0)
-		free = true;
-	return free;
-}
-
-bool isFreeBoardArr(int* pos) {
-    bool free = false;
-    PIECEINFO currentPiece = boardArr[pos[0]][pos[1]];
-	if(strcmp(currentPiece.pos, dummy.pos) == 0)
 		free = true;
 	return free;
 }

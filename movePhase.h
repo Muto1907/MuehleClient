@@ -2,6 +2,7 @@
 #define movePhase_h
 
 #include "shmConnectorThinker.h"
+#include "errorHandling.h"
 #include <stdio.h>
 #include <string.h>
 

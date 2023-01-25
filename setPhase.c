@@ -18,21 +18,21 @@ char* setPiece( PIECEINFO* piece){
     strcpy(buf, "PLAY ");
     //initialize 2 random integers by using time so the ints vary on each run
     time_t now = time(NULL);
-    srand(now);
-    int positions[2]; 
-    positions[0] = rand() % 3;
-    positions[1] = rand() % 8;
+    srand(now); 
+    int positionR = rand() % 3;
+    int positionS = rand() % 8;
     //test
-    printf("Random numbers: %d and %d\n", positions[0], positions[1]);
+    printf("Random numbers: %d and %d\n", positionR, positionS);
     //check if the position is free if not pick another random position
-    while(!isFree(remapCoordinates(positions[0], positions[1]))){
-            positions[0] = rand() % 3;
-            positions[1] = rand() % 8;
+     while(!isFreeBoardArr(positionR, positionS)){
+
+            positionR = rand() % 3;
+            positionS = rand() % 8;
             //test
-            printf("Changed numbers to %d and %d\n", positions[0], positions[1]);
+            printf("Changed numbers to %d and %d\n", positionR, positionS);
     }
     //bring the PLAY command into protocoll-format
-    strcpy(coordinates, remapCoordinates(positions[0], positions[1])+'\0');
+    strcpy(coordinates, remapCoordinates(positionR, positionS));
     strcat(buf, coordinates);
     strcat(buf, "\n");
     

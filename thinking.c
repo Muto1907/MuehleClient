@@ -9,6 +9,7 @@
 #include "shmConnectorThinker.h"
 #include "thinking.h"
 #include "setPhase.h"
+#include "movePhase.h"
 
 #define length(x) (sizeof(x) / sizeof(*(x)))
 
@@ -54,7 +55,18 @@ void think(void* ptr_thinker, int tc_pipe[])
 
         }
     //temporary error Message until other Phases are implemented
-    else perror("setPhase Over \n");
+        else {
+            printf("Set-Phase is over\n");
+            char buff[1024];
+            memset(buff, 0, 1024);
+            strcpy(buff, makeAMove(&player[game->myPlayerNumber]));
+             // thinker writes to pipe
+            if(write(tc_pipe[1], buff, strlen(buff) + 1) == -1){
+                perror("thinker can't write.\n");
+                exit(0);
+            }
+            printf("this is the command: %s\n", buff);
+        }
 
 
 
@@ -199,7 +211,7 @@ char* remapCoordinates(int first, int second){
 	}
     result[1] = second + '0';
     //sprintf(result+1, "%d", second);
-    //result[2] = '\0';
+    result[2] = '\0';
 
     //printf("first: %c, and second: %c", result[0], result[1]);
     return result;
@@ -209,6 +221,14 @@ bool isFree(char* pos)
 {
 	bool free = false;
 	if(strcmp(pos, dummy.pos) == 0)
+		free = true;
+	return free;
+}
+
+bool isFreeBoardArr(int posR, int posS) {
+    bool free = false;
+    PIECEINFO currentPiece = boardArr[posR] [posS];
+	if(strcmp(currentPiece.pos, dummy.pos) == 0)
 		free = true;
 	return free;
 }

@@ -12,7 +12,8 @@
 //initialising return string
 char moveSeq[1024];
 
-char *makeAMove(PIECEINFO *board, PLAYERINFO *currentPlayer) {
+char *makeAMove( PLAYERINFO *currentPlayer) {
+    printf("You are in makeAMove\n");
 
     while(true) { //try different pieces until some neighbouring place for current piece is free and function terminates
         memset(moveSeq, 0, 1024);
@@ -21,15 +22,16 @@ char *makeAMove(PIECEINFO *board, PLAYERINFO *currentPlayer) {
         //choosing a random piece from currentPlayer
         time_t now = time(NULL);
         srand(now);
-        int randPiece = rand() % 8;
+        int randPiece = rand() % 9;
 
         //check if piece is already captured
         //if so try a different random piece number
-        while(strcmp(currentPlayer->piece[randPiece].pos, "C ")) {
-            randPiece = rand() % 8;
+        while(strcmp(currentPlayer->piece[randPiece].pos, "C")) {
+            randPiece = rand() % 9;
         }
         PIECEINFO currentPiece = currentPlayer->piece[randPiece];
-        strcat(moveSeq, currentPiece.pos+':');
+        strcat(moveSeq, currentPiece.pos);
+        strcat(moveSeq, ":");
 
         //get corresponding board position for the currentPiece
         int* pos = mapCoord(currentPiece);
@@ -41,30 +43,35 @@ char *makeAMove(PIECEINFO *board, PLAYERINFO *currentPlayer) {
         else: continue searching */
 
         //checking neighbours on same ring
-        if(isFree(remapCoordinates(coordR, coordS-1 %8))) {
-            strcat(moveSeq, remapCoordinates(coordR, coordS-1 %8)+'\0');
+        if(isFreeBoardArr((coordR % 3), coordS-1 %8)) {
+            strcat(moveSeq, remapCoordinates(coordR, coordS-1 %8));
+            printf("if-case1: %s\n", moveSeq);
             return moveSeq;
         }
-        if(isFree(remapCoordinates(coordR, coordS+1 %8))) {
-            strcat(moveSeq, remapCoordinates(coordR, coordS+1 %8)+'\0');
+        if(isFreeBoardArr(coordR, coordS+1 %8)) {
+            strcat(moveSeq, remapCoordinates(coordR, coordS+1 %8));
+            printf("if-case2: %s\n", moveSeq);
             return moveSeq;
         }
 
         //checking neighbours on different rings 
         if(coordS % 2 == 1) { //at least one neighbour is on a different ring
             if(coordR == 1 || coordR == 2) {
-                    if(isFree(remapCoordinates(coordR+1, coordS))) {
-                        strcat(moveSeq, remapCoordinates(coordR+1 %3, coordS)+'\0');
+                    if(isFreeBoardArr(coordR+1 % 3, coordS)) {
+                        strcat(moveSeq, remapCoordinates(coordR+1 %3, coordS));
+                        printf("if-case3: %s\n", moveSeq);
                         return moveSeq;
                     }
             }
             if(coordR == 2 || coordR == 3) {
-                    if(isFree(remapCoordinates(coordR-1, coordS))) {
-                        strcat(moveSeq, remapCoordinates(coordR-1 %3, coordS)+'\0');
+                    if(isFreeBoardArr(coordR-1 % 3, coordS)) {
+                        strcat(moveSeq, remapCoordinates(coordR-1 %3, coordS));
+                        printf("if-case4: %s\n", moveSeq);
                         return moveSeq;
                     }
             }
         }
+        printf("movesequence after while-loop: %s\n", moveSeq);
     }
     //TODO return error message
 //for Test purpose

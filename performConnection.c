@@ -345,7 +345,7 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
 
                             else  if(sscanf(line,"+ CAPTURE %d", &piecesToBeCaptured) == 1){
                                 printf("Server: Pieces to be captured: %d\n", piecesToBeCaptured);
-                                allPlayerInfo[myPlayerNumber]->piecesToBeCaptured = piecesToBeCaptured;
+                                //allPlayerInfo[myPlayerNumber]->piecesToBeCaptured = piecesToBeCaptured;
                             }
 
                             else  if(sscanf(line,"+ PIECELIST %d,%d", &playerCount, &piecesCount) == 2){
@@ -452,7 +452,7 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                         return -1;
                     }
                     else{
-                        //printf("This is the move: %s\n", move);
+                        printf("This is the move: %s\n", move);
                         //memset(moveCommand, 0, BUF);
                         
                         //strcpy(moveCommand, move);

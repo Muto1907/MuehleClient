@@ -10,4 +10,6 @@ char* remapCoordinates(int, int);
 
 bool isFree(char*);
 
+bool isFreeBoardArr(int posR, int posS);
+
 #endif

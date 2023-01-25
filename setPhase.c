@@ -39,29 +39,3 @@ char* setPiece( PIECEINFO* piece){
 
     return buf;
 }
-
-//map the two random integers into the corresponding position
-/* char* remapCoordinates(int first, int second){	
-
-	switch(first)
-	{
-		case 0:
-			result[0] = 'A';
-			break;
-		case 1:
-			result[0] = 'B';
-			break;
-		case 2:
-			result[0] = 'C';
-			break;
-		default:
-			break;
-	}
-    result[1] = second + '0';
-    //sprintf(result+1, "%d", second);
-    result[2] = '\0';
-
-    //printf("first: %c, and second: %c", result[0], result[1]);
-    return result;
-}
- */

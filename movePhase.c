@@ -11,22 +11,25 @@
 
 //initialising return string
 char moveSeq[1024];
+char currentPosition[24];
 
 char *makeAMove( PLAYERINFO *currentPlayer) {
-    printf("You are in makeAMove\n");
+
+    time_t now = time(NULL);
+    srand(now);
 
     while(true) { //try different pieces until some neighbouring place for current piece is free and function terminates
         memset(moveSeq, 0, 1024);
         strcpy(moveSeq, "PLAY ");
 
         //choosing a random piece from currentPlayer
-        time_t now = time(NULL);
-        srand(now);
         int randPiece = rand() % 9;
+        printf("randPiece value: %d\n", randPiece);
 
         //check if piece is already captured
         //if so try a different random piece number
-        while(strcmp(currentPlayer->piece[randPiece].pos, "C")) {
+        while(strcmp(currentPlayer->piece[randPiece].pos, "C") == 0) {
+            printf("currentPiece is captured.\n");
             randPiece = rand() % 9;
         }
         PIECEINFO currentPiece = currentPlayer->piece[randPiece];
@@ -42,39 +45,35 @@ char *makeAMove( PLAYERINFO *currentPlayer) {
         if so: move there and leave function
         else: continue searching */
 
+        printf("Position von Spielstein %d, Position: %s, entspricht: %d%d\n", currentPiece.piecenum, currentPlayer->piece[randPiece].pos, coordR, coordS);
+
         //checking neighbours on same ring
-        if(isFreeBoardArr((coordR % 3), coordS-1 %8)) {
+        if(isFreeBoardArr((coordR %3), coordS-1 %8)) {
             strcat(moveSeq, remapCoordinates(coordR, coordS-1 %8));
-            printf("if-case1: %s\n", moveSeq);
             return moveSeq;
         }
         if(isFreeBoardArr(coordR, coordS+1 %8)) {
             strcat(moveSeq, remapCoordinates(coordR, coordS+1 %8));
-            printf("if-case2: %s\n", moveSeq);
             return moveSeq;
         }
 
         //checking neighbours on different rings 
         if(coordS % 2 == 1) { //at least one neighbour is on a different ring
-            if(coordR == 1 || coordR == 2) {
+            if(coordR == 0 || coordR == 1) {
                     if(isFreeBoardArr(coordR+1 % 3, coordS)) {
                         strcat(moveSeq, remapCoordinates(coordR+1 %3, coordS));
-                        printf("if-case3: %s\n", moveSeq);
                         return moveSeq;
                     }
             }
-            if(coordR == 2 || coordR == 3) {
+            if(coordR == 1 || coordR == 2) {
                     if(isFreeBoardArr(coordR-1 % 3, coordS)) {
                         strcat(moveSeq, remapCoordinates(coordR-1 %3, coordS));
-                        printf("if-case4: %s\n", moveSeq);
                         return moveSeq;
                     }
             }
         }
-        printf("movesequence after while-loop: %s\n", moveSeq);
     }
-    //TODO return error message
-//for Test purpose
-errFunctionFailed("makeAMove");
-return "DON'T PLAY";
+
+    errFunctionFailed("makeAMove");
+    return "DON'T PLAY";
 }

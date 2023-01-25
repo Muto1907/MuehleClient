@@ -25,13 +25,15 @@ void think(void* ptr_thinker, int tc_pipe[])
     GAMEINFO* game = (GAMEINFO*) ptr_thinker;
     PLAYERINFO *player = (PLAYERINFO *) (game+1);
 
-    for(int i = 0; i < game->countPlayer; i++){
-        for(int j = 0; j < length(player->piece); j++){
+    int rows = sizeof(boardArr)/sizeof(boardArr[0]);
+    int columns = sizeof(boardArr[0])/sizeof(boardArr[0][0]);
+
+    for(int i = 0; i < rows; i++){
+        for(int j = 0; j < columns; j++){
             boardArr[i][j] = dummy;
         }
     }
     printf("thinking 2.0...\n");
-    
 
 
     if(game->flagProvideMove)
@@ -227,7 +229,8 @@ bool isFree(char* pos)
 
 bool isFreeBoardArr(int posR, int posS) {
     bool free = false;
-    PIECEINFO currentPiece = boardArr[posR] [posS];
+    PIECEINFO currentPiece = boardArr[posR][posS];
+    printf("isFreeBoardArr: currently tested position value: %s\n", currentPiece.pos);
 	if(strcmp(currentPiece.pos, dummy.pos) == 0)
 		free = true;
 	return free;

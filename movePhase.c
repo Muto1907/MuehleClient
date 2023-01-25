@@ -61,6 +61,6 @@ char *makeAMove(PIECEINFO *board, PLAYERINFO *currentPlayer) {
 
         perturbance ++;
     }
-
-return "1";
+//for Test purpose
+//return "1";
 }

@@ -8,27 +8,51 @@
 #include "errorHandling.h"
 #include "shmConnectorThinker.h"
 #include "thinking.h"
+#include "setPhase.h"
 
-const PIECEINFO dummy = {-1, -1, "NN"};
-PIECEINFO boardArr[3][8] = {{dummy}};
+#define length(x) (sizeof(x) / sizeof(*(x)))
+
+
+
+const PIECEINFO dummy = {-1, -1, "N"};
+PIECEINFO boardArr[3][8];
 
 void think(void* ptr_thinker, int tc_pipe[])
 {
+    GAMEINFO* game = (GAMEINFO*) ptr_thinker;
+    PLAYERINFO *player = (PLAYERINFO *) (game+1);
+
+    for(int i = 0; i < game->countPlayer; i++){
+        for(int j = 0; j < length(player->piece); j++){
+            boardArr[i][j] = dummy;
+        }
+    }
     printf("thinking 2.0...\n");
     
 
-    GAMEINFO* game = (GAMEINFO*) ptr_thinker;
-    PLAYERINFO *player = (PLAYERINFO *) (game+1);
+
     if(game->flagProvideMove)
     {
-        dumpGameCurrent(player, game);
-        //let the thinker think and send it to the connector
-        char buff[] = "A1\n";
-        // thinker writes to pipe
-        if(write(tc_pipe[1], buff, strlen(buff) + 1) == -1){
-            perror("thinker can't write.\n");
-            exit(0);
+        for(int i = 0; i < game->countPlayer; i++){
+            for(int j = 0; j < length(player->piece); j++){
+                mapCoord(player[i].piece[j]);
+            }
         }
+        dumpGameCurrent(player, game);
+        //check if last piece is still Available. If not setPhase is over
+        if(strcmp(player->piece[8].pos, "A") == 0){
+            char* buff = setPiece (player->piece);
+        
+
+            // thinker writes to pipe
+            if(write(tc_pipe[1], buff, strlen(buff) + 1) == -1){
+                perror("thinker can't write.\n");
+                exit(0);
+            }
+
+        }
+    //temporary error Message until other Phases are implemented
+    else perror("setPhase Over \n");
 
 
 
@@ -122,11 +146,11 @@ void dumpGameCurrent(PLAYERINFO* player, GAMEINFO* game)
         printf("%s\n",board[i]);
 }
 
-void mapCoord(PIECEINFO* piece)
+void mapCoord(PIECEINFO piece)
 {
 	int coordR = 0;
 	
-	switch(piece->pos[0])
+	switch(piece.pos[0])
 	{
 		case 'A':
 			coordR = 0;
@@ -141,9 +165,9 @@ void mapCoord(PIECEINFO* piece)
 			break;
 	}
 	
-	int coordS = (int)(piece->pos[1]) % 8;
+	int coordS = ((int)(piece.pos[1]) - '0') % 8;
 	
-	boardArr[coordR][coordS] = *piece;
+	boardArr[coordR][coordS] = piece;
 }
 
 int getMapCoordRing(PIECEINFO* piece) 
@@ -168,13 +192,15 @@ int getMapCoordRing(PIECEINFO* piece)
     return coordR;
 }
 
+
+
 //takes boardArray coordinates and returns ring coordinate coordR in prolog syntax
 char getCoordR(int coordR, int coordS) {
     char ringNumber;
     ringNumber = boardArr[coordR][coordS].pos[0];
     return ringNumber;
 }
-//takes boardArray coordinates and returns ring coordinate coordR in prolog syntax
+//takes boardArray coordinates and returns ring coordinate coordS in prolog syntax
 char getCoordS(int coordR, int coordS) {
     char ringPosition;
     ringPosition = boardArr[coordR][coordS].pos[1];
@@ -184,7 +210,7 @@ char getCoordS(int coordR, int coordS) {
 bool isFree(char* pos)
 {
 	bool free = false;
-	if(strcmp(pos, dummy.pos))
+	if(strcmp(pos, dummy.pos) == 0)
 		free = true;
 	return free;
 }
@@ -192,7 +218,8 @@ bool isFree(char* pos)
 bool isFreeBoardArr(int* pos) {
     bool free = false;
     PIECEINFO currentPiece = boardArr[pos[0]][pos[1]];
-	if(strcmp(currentPiece.pos, dummy.pos))
+	if(strcmp(currentPiece.pos, dummy.pos) == 0)
 		free = true;
 	return free;
 }
+

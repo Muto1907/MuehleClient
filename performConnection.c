@@ -188,7 +188,7 @@ void finishSetup(int *initial_shm_ptr){
 //entire TCP Protocoll
 int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int *initial_shm, int tc_pipe[]){
 
-    char moveCommand [BUF];
+    //char moveCommand [BUF];
 
 	// create Client message for gameID
 	char formatgameID [18];
@@ -345,6 +345,7 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
 
                             else  if(sscanf(line,"+ CAPTURE %d", &piecesToBeCaptured) == 1){
                                 printf("Server: Pieces to be captured: %d\n", piecesToBeCaptured);
+                                allPlayerInfo[myPlayerNumber]->piecesToBeCaptured = piecesToBeCaptured;
                             }
 
                             else  if(sscanf(line,"+ PIECELIST %d,%d", &playerCount, &piecesCount) == 2){
@@ -373,9 +374,6 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                             else if(strcmp(line, "+ ENDPIECELIST") == 0){
                                 printf("SERVER: ENDPIECESLIST.\n");
                                 sendMsgToServer(fileDescriptor,"THINKING\n");
-                                //sending signal to thinker
-                                shm_gameInfo->flagProvideMove = true;
-                                kill(gameInfo->idThinker, SIGUSR1);
                                 //printf("Message received\n");
                                 }   
 
@@ -386,9 +384,11 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
 
 
                             else if(strcmp(line, "+ OKTHINK") == 0 ){
+                                //sending signal to thinker
+                                shm_gameInfo->flagProvideMove = true;
+                                kill(gameInfo->idThinker, SIGUSR1);
                                 printf("SERVER: %s\n", serverMsg);
                                 //TEST
-                                sendMsgToServer(fileDescriptor, moveCommand);
 
 
                             }
@@ -452,10 +452,13 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                         return -1;
                     }
                     else{
-                        memset(moveCommand, 0, BUF);
-                        strcpy(moveCommand, "PLAY ");
-                        strcat(moveCommand, move);
+                        //printf("This is the move: %s\n", move);
+                        //memset(moveCommand, 0, BUF);
+                        
+                        //strcpy(moveCommand, move);
+                        //strcat(moveCommand, "\n");
 
+                        sendMsgToServer(fileDescriptor, move);
                     }                
             }
         }

@@ -1,6 +1,6 @@
 CC = /usr/bin/gcc
 FLAGS = -Wall -Werror
-SOURCE = main.c performConnection.o errorHandling.o paramConfig.o shmConnectorThinker.o thinking.o
+SOURCE = main.c performConnection.o errorHandling.o paramConfig.o shmConnectorThinker.o thinking.o movePhase.o setPhase.o
 
 all: sysprak-client
 
@@ -26,7 +26,10 @@ thinking.o : thinking.c thinking.h
 	$(CC) $(FLAGS) -c thinking.c
 
 movePhase.o : movePhase.c movePhase.h
-	$$(CC) $(FLAGS) -c movePhase.c
+	$(CC) $(FLAGS) -c movePhase.c
+
+setPhase.o : setPhase.c setPhase.h
+	$(CC) $(FLAGS) -c setPhase.c
 
 clean:
 	rm -f *.o ./sysprak-client

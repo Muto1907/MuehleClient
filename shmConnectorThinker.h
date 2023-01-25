@@ -33,6 +33,7 @@ typedef struct {
     bool ready;
     bool isWinner;
     PIECEINFO piece[9];
+    int piecesToBeCaptured;
 
 } PLAYERINFO;
 

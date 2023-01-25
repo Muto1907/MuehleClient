@@ -1,11 +1,11 @@
-include <stdio.h>
-include <unistd.h>
-include <stdlib.h>
-include <string.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
 
-include "movePhase.h"
-include "thinking.h"
-include "shmConnectorThinker.h"
+#include "movePhase.h"
+#include "thinking.h"
+#include "shmConnectorThinker.h"
 
 char *makeAMove(PIECEINFO *board, PLAYERINFO *currentPlayer) {
     int perturbance = 0; //to perturb rand() in case it always returns the same value
@@ -34,7 +34,7 @@ char *makeAMove(PIECEINFO *board, PLAYERINFO *currentPlayer) {
         else: continue searching */
 
         //checking neighbours on same ring
-        if(isFreeBoardArr({coordR, (coordS-1 %8)}) {
+        if(isFreeBoardArr({coordR, (coordS-1 %8)})) {
             moveSeq += ":" + getCoordR(coordR, (coordS-1 %8)) + getCoordS(coordR, (coordS-1 %8));
             return moveSeq;
         }
@@ -62,5 +62,5 @@ char *makeAMove(PIECEINFO *board, PLAYERINFO *currentPlayer) {
         perturbance ++;
     }
 
-
+return "1";
 }

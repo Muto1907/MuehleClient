@@ -236,3 +236,7 @@ bool isFreeBoardArr(int posR, int posS) {
 	return free;
 }
 
+int getPlayernumberForPiece(int posR, int posS) {
+    PIECEINFO currentPiece = boardArr[posR][posS];
+    return currentPiece.playerNum;
+}

@@ -9,7 +9,8 @@ int* mapCoord(PIECEINFO);
 char* remapCoordinates(int, int);
 
 bool isFree(char*);
+bool isFreeBoardArr(int, int);
 
-bool isFreeBoardArr(int posR, int posS);
+int getPlayernumberForPiece(int, int);
 
 #endif

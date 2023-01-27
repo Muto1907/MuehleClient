@@ -117,6 +117,7 @@ void set_GameParam(GAMEINFO *gameInfo)
         gameInfo->countPlayer = playerCount;
         gameInfo->idThinker = getppid();
         gameInfo->idConnector = getpid();
+        gameInfo->enemyPlayerNumber = enemyPlayerNumber;
     }
 }
 
@@ -345,7 +346,8 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
 
                             else  if(sscanf(line,"+ CAPTURE %d", &piecesToBeCaptured) == 1){
                                 printf("Server: Pieces to be captured: %d\n", piecesToBeCaptured);
-                                //allPlayerInfo[myPlayerNumber]->piecesToBeCaptured = piecesToBeCaptured;
+                                shm_gameInfo->piecesToBeCaptured = piecesToBeCaptured;
+                                printf("Pieces to be Captured shm: %d\n",gameInfo->piecesToBeCaptured);
                             }
 
                             else  if(sscanf(line,"+ PIECELIST %d,%d", &playerCount, &piecesCount) == 2){
@@ -386,6 +388,7 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                             else if(strcmp(line, "+ OKTHINK") == 0 ){
                                 //sending signal to thinker
                                 shm_gameInfo->flagProvideMove = true;
+
                                 kill(gameInfo->idThinker, SIGUSR1);
                                 printf("SERVER: %s\n", serverMsg);
                                 //TEST

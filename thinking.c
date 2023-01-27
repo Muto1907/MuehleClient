@@ -10,6 +10,7 @@
 #include "thinking.h"
 #include "setPhase.h"
 #include "movePhase.h"
+#include "capturePhase.h"
 
 #define length(x) (sizeof(x) / sizeof(*(x)))
 
@@ -44,8 +45,23 @@ void think(void* ptr_thinker, int tc_pipe[])
             }
         }
         dumpGameCurrent(player, game);
+        printf("Thinker Pieces to be Captured shm: %d\n",game->piecesToBeCaptured);
         //check if last piece is still Available. If not setPhase is over
-        if(strcmp(player->piece[8].pos, "A") == 0){
+        if(game->piecesToBeCaptured > 0){
+            printf("In the While Loop\n");
+            char buff[1024];
+            memset(buff, 0, 1024);
+            strcpy(buff, captureAPiece(&player[game->enemyPlayerNumber]));
+            // thinker writes to pipe
+            if(write(tc_pipe[1], buff, strlen(buff) + 1) == -1){
+                perror("thinker can't write.\n");
+                exit(0);
+            }
+            
+        }
+
+        else if(strcmp(player->piece[8].pos, "A") == 0){
+            //setPhase begins here:
             char* buff = setPiece (player->piece);
         
 
@@ -56,11 +72,11 @@ void think(void* ptr_thinker, int tc_pipe[])
             }
 
         }
-    //temporary error Message until other Phases are implemented
         else {
             printf("Set-Phase is over\n");
             char buff[1024];
             memset(buff, 0, 1024);
+            //MovePhase begins here:
             strcpy(buff, makeAMove(&player[game->myPlayerNumber]));
              // thinker writes to pipe
             if(write(tc_pipe[1], buff, strlen(buff) + 1) == -1){
@@ -211,6 +227,10 @@ char* remapCoordinates(int first, int second){
 		default:
 			break;
 	}
+    //modulo operator in c doesnt account for negative numbers
+    if(second < 0){
+        second += 8;
+    }
     result[1] = second + '0';
     //sprintf(result+1, "%d", second);
     result[2] = '\0';

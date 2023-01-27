@@ -49,7 +49,7 @@ char *makeAMove( PLAYERINFO *currentPlayer) {
 
         //checking neighbours on same ring
         if(isFreeBoardArr(coordR %3, (coordS-1) %8)) {
-            strcat(moveSeq, remapCoordinates(coordR, (coordS-1) %8));
+            strcat(moveSeq, remapCoordinates(coordR, ((coordS-1) %8)));
             strcat(moveSeq,"\n");
             return moveSeq;
         }
@@ -63,7 +63,7 @@ char *makeAMove( PLAYERINFO *currentPlayer) {
         if(coordS % 2 == 1) { //at least one neighbour is on a different ring
             if(coordR == 0 || coordR == 1) {
                     if(isFreeBoardArr((coordR+1) % 3, coordS)) {
-                        strcat(moveSeq, remapCoordinates(coordR+1 %3, coordS));
+                        strcat(moveSeq, remapCoordinates((coordR+1) %3, coordS));
                         strcat(moveSeq,"\n");
                         return moveSeq;
                     }

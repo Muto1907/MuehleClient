@@ -11,10 +11,12 @@ typedef struct {
 
     char gameName[32];
     int myPlayerNumber;
+    int enemyPlayerNumber;
     int countPlayer;
     pid_t idThinker;
     pid_t idConnector;
     bool flagProvideMove;
+    int piecesToBeCaptured;
     //bool gameGoing;
 
 } GAMEINFO;
@@ -33,7 +35,7 @@ typedef struct {
     bool ready;
     bool isWinner;
     PIECEINFO piece[9];
-    int piecesToBeCaptured;
+
 
 } PLAYERINFO;
 

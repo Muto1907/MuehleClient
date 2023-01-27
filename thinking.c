@@ -21,6 +21,16 @@ char result[6];
 int resultingPos[2];
 bool flagPrt= true;
 
+int countPieces(PLAYERINFO player) {
+    int counter = 0;
+    for(int i=0; i < sizeof(player.piece)/sizeof(player.piece[0]); i++) {
+        if(strcmp(player.piece[i].pos, "A") != 0 && strcmp(player.piece[i].pos, "C") != 0)
+            counter++;
+    }
+
+    return counter;
+}
+
 void think(void* ptr_thinker, int tc_pipe[])
 {
     GAMEINFO* game = (GAMEINFO*) ptr_thinker;

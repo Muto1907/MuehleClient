@@ -28,7 +28,7 @@ char *jump(PLAYERINFO *currentPlayer) {
         PIECEINFO currentPiece = currentPlayer->piece[randPiece];
 
         if(strcmp(currentPiece.pos, "A") != 0 && strcmp(currentPiece.pos, "C") != 0) {
-            while(true){ //try different positions on board until
+            while(true){ //try different positions on board until free
                 int ring = rand() %3;
                 int spot = rand() %8;
                 if(isFreeBoardArr(ring, spot)) {

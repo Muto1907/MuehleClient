@@ -19,6 +19,7 @@ const PIECEINFO dummy = {-1, -1, "N"};
 PIECEINFO boardArr[3][8];
 char result[6];
 int resultingPos[2];
+bool flagPrt= true;
 
 void think(void* ptr_thinker, int tc_pipe[])
 {
@@ -58,7 +59,9 @@ void think(void* ptr_thinker, int tc_pipe[])
         }
     //temporary error Message until other Phases are implemented
         else {
-            printf("Set-Phase is over\n");
+            if (flagPrt)
+				printf("Set-Phase is over\n");
+			flagPrt = false;
             char buff[1024];
             memset(buff, 0, 1024);
             strcpy(buff, makeAMove(&player[game->myPlayerNumber]));

@@ -35,24 +35,26 @@ char *captureAPiece(PLAYERINFO *enemyPlayer) {
         printf("Position von Spielstein %d, Position: %s, entspricht: %d%d\n", currentPiece.piecenum, enemyPlayer->piece[randPiece].pos, coordR, coordS);
 
         //check if chosen piece is part of a mill and cannot be captured
-        if(coordS % 2 == 1) { //at least one neighbour is on a different ring)
-            if(isFreeBoardArr(coordR, (coordS-1) %8) && getPlayernumberForPiece(coordR, (coordS-1) %8) == enemyPlayer->playerNumber 
-               && isFreeBoardArr(coordR, (coordS+1) %8) && getPlayernumberForPiece(coordR, (coordS+1) %8) == enemyPlayer->playerNumber) { //mill on same ring
-                partOfMill = true;
+        if(strcmp(currentPiece.pos, "A") != 0 && strcmp(currentPiece.pos, "C") != 0) {
+            if(coordS % 2 == 1) { //at least one neighbour is on a different ring)
+                if(isFreeBoardArr(coordR, (coordS-1) %8) && getPlayernumberForPiece(coordR, (coordS-1) %8) == enemyPlayer->playerNumber 
+                && isFreeBoardArr(coordR, (coordS+1) %8) && getPlayernumberForPiece(coordR, (coordS+1) %8) == enemyPlayer->playerNumber) { //mill on same ring
+                    partOfMill = true;
+                }
+                else if(isFreeBoardArr((coordR+1) %3, coordS) && getPlayernumberForPiece((coordR+1) %3, coordS) == enemyPlayer->playerNumber 
+                && isFreeBoardArr((coordR+2) %3, coordS) && getPlayernumberForPiece((coordR+2) %3, coordS) == enemyPlayer->playerNumber) { //mill on spanning all three rings
+                    partOfMill = true;
+                }
             }
-            else if(isFreeBoardArr((coordR+1) %3, coordS) && getPlayernumberForPiece((coordR+1) %3, coordS) == enemyPlayer->playerNumber 
-               && isFreeBoardArr((coordR+2) %3, coordS) && getPlayernumberForPiece((coordR+2) %3, coordS) == enemyPlayer->playerNumber) { //mill on spanning all three rings
-                partOfMill = true;
-            }
-        }
-        else { //all neighbours are on the same ring
-            if(isFreeBoardArr(coordR, (coordS-2) %8) && getPlayernumberForPiece(coordR, (coordS-2) %8) == enemyPlayer->playerNumber 
-               && isFreeBoardArr(coordR, (coordS-1) %8) && getPlayernumberForPiece(coordR, (coordS-1) %8) == enemyPlayer->playerNumber) { //mill "to the left" of currentPiece
-                partOfMill = true;
-            }
-            else if(isFreeBoardArr(coordR, (coordS+2) %8) && getPlayernumberForPiece(coordR, (coordS+2) %8) == enemyPlayer->playerNumber 
-               && isFreeBoardArr(coordR, (coordS+1) %8) && getPlayernumberForPiece(coordR, (coordS+1) %8) == enemyPlayer->playerNumber) { //mill "to the right" of currentPiece
-                partOfMill = true;
+            else { //all neighbours are on the same ring
+                if(isFreeBoardArr(coordR, (coordS-2) %8) && getPlayernumberForPiece(coordR, (coordS-2) %8) == enemyPlayer->playerNumber 
+                && isFreeBoardArr(coordR, (coordS-1) %8) && getPlayernumberForPiece(coordR, (coordS-1) %8) == enemyPlayer->playerNumber) { //mill "to the left" of currentPiece
+                    partOfMill = true;
+                }
+                else if(isFreeBoardArr(coordR, (coordS+2) %8) && getPlayernumberForPiece(coordR, (coordS+2) %8) == enemyPlayer->playerNumber 
+                && isFreeBoardArr(coordR, (coordS+1) %8) && getPlayernumberForPiece(coordR, (coordS+1) %8) == enemyPlayer->playerNumber) { //mill "to the right" of currentPiece
+                    partOfMill = true;
+                }
             }
         }
 

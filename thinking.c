@@ -20,6 +20,17 @@ const PIECEINFO dummy = {-1, -1, "N"};
 PIECEINFO boardArr[3][8];
 char result[6];
 int resultingPos[2];
+bool flagPrt= true;
+
+int countPieces(PLAYERINFO player) {
+    int counter = 0;
+    for(int i=0; i < sizeof(player.piece)/sizeof(player.piece[0]); i++) {
+        if(strcmp(player.piece[i].pos, "A") != 0 && strcmp(player.piece[i].pos, "C") != 0)
+            counter++;
+    }
+
+    return counter;
+}
 
 void think(void* ptr_thinker, int tc_pipe[])
 {
@@ -73,7 +84,9 @@ void think(void* ptr_thinker, int tc_pipe[])
 
         }
         else {
-            printf("Set-Phase is over\n");
+            if (flagPrt)
+				printf("Set-Phase is over\n");
+			flagPrt = false;
             char buff[1024];
             memset(buff, 0, 1024);
             //MovePhase begins here:

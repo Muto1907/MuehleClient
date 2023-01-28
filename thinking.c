@@ -21,6 +21,8 @@ PIECEINFO boardArr[3][8];
 char result[6];
 int resultingPos[2];
 bool flagPrt= true;
+char buff[1024];
+
 
 int countPieces(PLAYERINFO player) {
     int counter = 0;
@@ -34,6 +36,7 @@ int countPieces(PLAYERINFO player) {
 
 void think(void* ptr_thinker, int tc_pipe[])
 {
+    memset(buff, 0, 1024);
     GAMEINFO* game = (GAMEINFO*) ptr_thinker;
     PLAYERINFO *player = (PLAYERINFO *) (game+1);
 
@@ -60,45 +63,29 @@ void think(void* ptr_thinker, int tc_pipe[])
         //check if last piece is still Available. If not setPhase is over
         if(game->piecesToBeCaptured > 0){
             printf("In the While Loop\n");
-            char buff[1024];
-            memset(buff, 0, 1024);
             strcpy(buff, captureAPiece(&player[game->enemyPlayerNumber]));
-            // thinker writes to pipe
-            if(write(tc_pipe[1], buff, strlen(buff) + 1) == -1){
-                perror("thinker can't write.\n");
-                exit(0);
-            }
             
         }
 
         else if(strcmp(player->piece[8].pos, "A") == 0){
             //setPhase begins here:
-            char* buff = setPiece (player->piece);
-        
-
-            // thinker writes to pipe
-            if(write(tc_pipe[1], buff, strlen(buff) + 1) == -1){
-                perror("thinker can't write.\n");
-                exit(0);
-            }
+            strcpy(buff, setPiece (player->piece));
 
         }
         else {
             if (flagPrt)
 				printf("Set-Phase is over\n");
 			flagPrt = false;
-            char buff[1024];
-            memset(buff, 0, 1024);
             //MovePhase begins here:
             strcpy(buff, makeAMove(&player[game->myPlayerNumber]));
-             // thinker writes to pipe
-            if(write(tc_pipe[1], buff, strlen(buff) + 1) == -1){
-                perror("thinker can't write.\n");
-                exit(0);
-            }
+
             printf("this is the command: %s\n", buff);
         }
-
+            // thinker writes to pipe
+        if(write(tc_pipe[1], buff, strlen(buff) + 1) == -1){
+            perror("thinker can't write.\n");
+            exit(0);
+            }
 
 
 

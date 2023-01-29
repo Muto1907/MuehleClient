@@ -11,6 +11,7 @@
 #include "setPhase.h"
 #include "movePhase.h"
 #include "capturePhase.h"
+#include "jumpPhase.h"
 
 #define length(x) (sizeof(x) / sizeof(*(x)))
 
@@ -24,7 +25,7 @@ bool flagPrt= true;
 char buff[1024];
 
 //for test purposes only
-void printBoard() {
+/* void printBoard() {
     for(int ring = 0; ring < 3; ring ++) {
         for(int spot = 0; spot < 8; spot ++) {
             PIECEINFO currentPiece = boardArr[ring][spot];
@@ -33,12 +34,12 @@ void printBoard() {
         }
         printf("\n");
     }
-}
+} */
 
 
 int countPieces(PLAYERINFO player) {
     int counter = 0;
-    for(int i=0; i < sizeof(player.piece)/sizeof(player.piece[0]); i++) {
+    for(int i=0; i < length(player.piece); i++) {
         if(strcmp(player.piece[i].pos, "A") != 0 && strcmp(player.piece[i].pos, "C") != 0)
             counter++;
     }
@@ -52,8 +53,8 @@ void think(void* ptr_thinker, int tc_pipe[])
     GAMEINFO* game = (GAMEINFO*) ptr_thinker;
     PLAYERINFO *player = (PLAYERINFO *) (game+1);
 
-    int rows = sizeof(boardArr)/sizeof(boardArr[0]);
-    int columns = sizeof(boardArr[0])/sizeof(boardArr[0][0]);
+    int rows = length(boardArr);
+    int columns = length(boardArr[0]);
 
     for(int i = 0; i < rows; i++){
         for(int j = 0; j < columns; j++){
@@ -85,15 +86,21 @@ void think(void* ptr_thinker, int tc_pipe[])
             strcpy(buff, setPiece (player[game->myPlayerNumber].piece));
 
         }
-        else {
+        else if(countPieces(player[game->myPlayerNumber]) > 3){ //player has more than three pieces on board
             if (flagPrt)
 				printf("Set-Phase is over\n");
 			flagPrt = false;
             //MovePhase begins here:
             strcpy(buff, makeAMove(&player[game->myPlayerNumber]));
-            printBoard();
+            //printBoard();
 
             printf("this is the command: %s\n", buff);
+        }
+        else {//player has three pieces on board
+            //JumpPhase begins here:
+            strcpy(buff, jump(&player[game->myPlayerNumber]));
+
+            printf("Jumpcommand: %s\n", buff);
         }
             // thinker writes to pipe
         if(write(tc_pipe[1], buff, strlen(buff) + 1) == -1){

@@ -32,6 +32,8 @@ char *jump(PLAYERINFO *currentPlayer) {
                 int ring = rand() %3;
                 int spot = rand() %8;
                 if(isFreeBoardArr(ring, spot)) {
+                    strcat(jumpSeq, currentPiece.pos);
+                    strcat(jumpSeq, ":");
                     strcat(jumpSeq, remapCoordinates(ring, spot));
                     strcat(jumpSeq, "\n");
                     return jumpSeq;

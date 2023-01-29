@@ -26,9 +26,9 @@ char *makeAMove( PLAYERINFO *currentPlayer) {
         int randPiece = rand() % 9;
         printf("randPiece value: %d\n", randPiece);
 
-        //check if piece is already captured
+        //check if piece is already captured or available (shouldn't be the case at this stage)
         //if so try a different random piece number
-        while(strcmp(currentPlayer->piece[randPiece].pos, "C") == 0) {
+        while(strcmp(currentPlayer->piece[randPiece].pos, "C") == 0 || strcmp(currentPlayer->piece[randPiece].pos, "A") == 0) {
             printf("currentPiece is captured.\n");
             randPiece = rand() % 9;
         }

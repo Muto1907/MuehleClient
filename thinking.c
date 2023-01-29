@@ -23,6 +23,18 @@ int resultingPos[2];
 bool flagPrt= true;
 char buff[1024];
 
+//for test purposes only
+void printBoard() {
+    for(int ring = 0; ring < 3; ring ++) {
+        for(int spot = 0; spot < 8; spot ++) {
+            PIECEINFO currentPiece = boardArr[ring][spot];
+            printf("%s", currentPiece.pos);
+            printf("\t");
+        }
+        printf("\n");
+    }
+}
+
 
 int countPieces(PLAYERINFO player) {
     int counter = 0;
@@ -78,6 +90,7 @@ void think(void* ptr_thinker, int tc_pipe[])
 			flagPrt = false;
             //MovePhase begins here:
             strcpy(buff, makeAMove(&player[game->myPlayerNumber]));
+            printBoard();
 
             printf("this is the command: %s\n", buff);
         }
@@ -93,22 +106,6 @@ void think(void* ptr_thinker, int tc_pipe[])
 		// TODO : KI
 	}
 }
-
-#if 0
-static void setTestPieces (PLAYERINFO* player)
-{
-    int i;
-    for (i=0;i<9;i++)
-    {
-        player[0].piece[i].piecenum = i;
-        player[0].piece[i].pos[0] = 'A';
-        player[0].piece[i].pos[1] = '0' + i;
-        player[1].piece[i].piecenum = i;
-        player[1].piece[i].pos[0] = 'C';
-        player[1].piece[i].pos[1] = '0' + i;
-    }
-}
-#endif
 
 static char *boardtemplate[13] = 
 {
@@ -158,7 +155,7 @@ void dumpGameCurrent(PLAYERINFO* player, GAMEINFO* game)
     //setTestPieces(player); //testing
     int numPlayer = game->countPlayer;
 
-    char    board[13][28];
+    char board[13][28];
     int i,j;
     for (i=0;i<13;i++)
         strcpy(board[i],boardtemplate[i]);
@@ -180,40 +177,43 @@ void dumpGameCurrent(PLAYERINFO* player, GAMEINFO* game)
 
 int *mapCoord(PIECEINFO piece)
 {
-	memset(resultingPos, 0, 8);
+	memset(resultingPos, -1, 8);
 
-    int coordR = 0;
-	
-	switch(piece.pos[0])
-	{
-		case 'A':
-			coordR = 0;
-			break;
-		case 'B':
-			coordR = 1;
-			break;
-		case 'C':
-			coordR = 2;
-			break;
-		default:
-			break;
-	}
-	
-	int coordS = ((int)(piece.pos[1]) - '0') % 8;
-	
-	boardArr[coordR][coordS] = piece;
+    if(strcmp(piece.pos, "C") != 0 && strcmp(piece.pos, "A") != 0) {
+        
+        int coordR = 0;
+                
+        switch(piece.pos[0])
+        {
+            case 'A':
+                coordR = 0;
+                break;
+            case 'B':
+                coordR = 1;
+                break;
+            case 'C':
+                coordR = 2;
+                break;
+            default:
+                break;
+        }
+        
+        int coordS = ((int)(piece.pos[1]) - '0') % 8;
+        
+        boardArr[coordR][coordS] = piece;
 
-    resultingPos[0] = coordR;
-    resultingPos[1] = coordS;
-
+        resultingPos[0] = coordR;
+        resultingPos[1] = coordS;
+    }
+    
     return resultingPos;
 }
 
-char* remapCoordinates(int first, int second){	
+char* remapCoordinates(int posR, int posS){	
 
     memset(result, 0, 6);
 
-	switch(first)
+	switch(posR)
 	{
 		case 0:
 			result[0] = 'A';
@@ -228,14 +228,12 @@ char* remapCoordinates(int first, int second){
 			break;
 	}
     //modulo operator in c doesnt account for negative numbers
-    if(second < 0){
-        second += 8;
+    if(posS < 0){
+        posS += 8;
     }
-    result[1] = second + '0';
-    //sprintf(result+1, "%d", second);
+    result[1] = posS + '0';
     result[2] = '\0';
 
-    //printf("first: %c, and second: %c", result[0], result[1]);
     return result;
 }
 
@@ -249,8 +247,12 @@ bool isFree(char* pos)
 
 bool isFreeBoardArr(int posR, int posS) {
     bool free = false;
+    //modulo operator in c doesnt account for negative numbers
+    if(posS < 0){
+        posS += 8;
+    }
     PIECEINFO currentPiece = boardArr[posR][posS];
-    printf("isFreeBoardArr: currently tested position value: %s\n", currentPiece.pos);
+    printf("isFreeBoardArr: position [%d][%d] with value: %s\n", posR, posS, currentPiece.pos);
 	if(strcmp(currentPiece.pos, dummy.pos) == 0)
 		free = true;
 	return free;

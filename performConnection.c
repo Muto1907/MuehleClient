@@ -436,7 +436,7 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                             else if(sscanf(line, "+ PLAYER0WON %s", winner) == 1){
                                 if(strcmp(winner, "Yes")){
                                     //TO DO Struct erweitern um Winnerdaten zu speichern
-                                    allPlayerInfo[0]->isWinner = 1;
+                                    shm_allPlayerInfo[0]->isWinner = 1;
                                     memset(winner, 0, POSITIONLENGTH);
                                 }
                             }
@@ -444,20 +444,20 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                             else if(sscanf(line, "+ PLAYER1W0N %s", winner) == 1){
                                 if(strcmp(winner, "Yes")){
                                     //TO DO Struct erweitern um Winnerdaten zu speichern
-                                    allPlayerInfo[1]->isWinner = 1;
+                                    shm_allPlayerInfo[1]->isWinner = 1;
                                     memset(winner, 0, POSITIONLENGTH);
                                 }
                             }
 
                             else if(strcmp(line, "+ QUIT") == 0){
                                 if(allPlayerInfo[0]->isWinner && !allPlayerInfo[1]->isWinner){
-                                    printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", allPlayerInfo[0]->playerName);
+                                    printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", shm_allPlayerInfo[0]->playerName);
                                 }
                                 else if(!allPlayerInfo[0]->isWinner && allPlayerInfo[1]->isWinner){
-                                    printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", allPlayerInfo[1]->playerName);
+                                    printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", shm_allPlayerInfo[1]->playerName);
                                 }
                                 else{
-                                    printf("IT'S A DRAW!!!! WELL PLAYED %s and %s\n", allPlayerInfo[0]->playerName, allPlayerInfo[1]->playerName);
+                                    printf("IT'S A DRAW!!!! WELL PLAYED %s and %s\n", shm_allPlayerInfo[0]->playerName, shm_allPlayerInfo[1]->playerName);
                                 }
 
                                 if(close(epoll_fd)){

@@ -155,7 +155,7 @@ void dumpGameCurrent(PLAYERINFO* player, GAMEINFO* game)
     //setTestPieces(player); //testing
     int numPlayer = game->countPlayer;
 
-    char    board[13][28];
+    char board[13][28];
     int i,j;
     for (i=0;i<13;i++)
         strcpy(board[i],boardtemplate[i]);
@@ -177,32 +177,35 @@ void dumpGameCurrent(PLAYERINFO* player, GAMEINFO* game)
 
 int *mapCoord(PIECEINFO piece)
 {
-	memset(resultingPos, 0, 8);
+	memset(resultingPos, -1, 8);
 
-    int coordR = 0;
-	
-	switch(piece.pos[0])
-	{
-		case 'A':
-			coordR = 0;
-			break;
-		case 'B':
-			coordR = 1;
-			break;
-		case 'C':
-			coordR = 2;
-			break;
-		default:
-			break;
-	}
-	
-	int coordS = ((int)(piece.pos[1]) - '0') % 8;
-	
-	boardArr[coordR][coordS] = piece;
+    if(strcmp(piece.pos, "C") != 0 && strcmp(piece.pos, "A") != 0) {
+        
+        int coordR = 0;
+                
+        switch(piece.pos[0])
+        {
+            case 'A':
+                coordR = 0;
+                break;
+            case 'B':
+                coordR = 1;
+                break;
+            case 'C':
+                coordR = 2;
+                break;
+            default:
+                break;
+        }
+        
+        int coordS = ((int)(piece.pos[1]) - '0') % 8;
+        
+        boardArr[coordR][coordS] = piece;
 
-    resultingPos[0] = coordR;
-    resultingPos[1] = coordS;
-
+        resultingPos[0] = coordR;
+        resultingPos[1] = coordS;
+    }
+    
     return resultingPos;
 }
 

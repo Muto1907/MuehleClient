@@ -57,6 +57,7 @@ char pieceNumberstr[POSITIONLENGTH];
 char playerNumberstr[POSITIONLENGTH];
 char winner[POSITIONLENGTH];
 char move[POSITIONLENGTH];
+char rest[wordlength];
 
 //initialize structs
 //initial structs before shared memory is created
@@ -152,20 +153,23 @@ void finishSetup(int *initial_shm_ptr){
     //initial_shm_ptr points to shm_id
     *initial_shm_ptr = shm_id;
     printf("In performConnection: shm_id %d\n",*initial_shm_ptr);
+    
 
     void *shmPtr_connector;
     shmPtr_connector = attachShm(shm_id);
+    
 
     //creating pointer to addresses in actual shm segment where game info and player infos are stored respectively
 
     //pointer to game info
     shm_gameInfo = (GAMEINFO *) shmPtr_connector;
     *shm_gameInfo = *gameInfo;
+    printf("pointer to gameInfo%d\n", shm_gameInfo->countPlayer);
 
     //pointer to player info array
     shm_allPlayerInfo[0] = (PLAYERINFO *) (shm_gameInfo+1); //pointing to address after shm_gameInfo
     *shm_allPlayerInfo[0] = *allPlayerInfo[0]; 
-    for(int i=1; i < shm_gameInfo->countPlayer; i++){
+    for(int i=1; i < gameInfo->countPlayer; i++){
         shm_allPlayerInfo[i]  = (PLAYERINFO *) shm_allPlayerInfo[i-1]+1; //pointing to address that is sizeof(PLAYERINFO) greater than shm_allPlayerInfo[0] 
         *shm_allPlayerInfo[i] = *allPlayerInfo[i]; 
     } 
@@ -271,6 +275,7 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                 }
                 //+ means the Server is giving a positive Response
                 else if(serverMsg[0] =='+'){
+                    //printf("SERVERMSG: %s", serverMsg);
                     linesOfServerMsg = serverMsgToLines(serverMsg,tokenArray);
                     for(int i = 0; i < wordlength; i++){
                         char *line = linesOfServerMsg[i];
@@ -313,9 +318,11 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                             else if(sscanf(line, "+ TOTAL %d", &playerCount) == 1){
                                 printf("SERVER: Number of participating Players: %d\n", playerCount);
                                 for(int j = 0; j < playerCount; j++){
-                                    if (j == myPlayerNumber) continue;
                                     strcpy(line, linesOfServerMsg[i +j]);
-                                    if(sscanf(line, "+ %d %s %d", &enemyPlayerNumber, enemyPlayerName, &isReady) == 3){
+
+                                    /*if(sscanf(line, "+ %d %s %s %d", &enemyPlayerNumber, enemyPlayerName, rest, &isReady) == 4){
+                                        printf("IsReady at the momment = %d\n", isReady);
+                                        if (enemyPlayerNumber == myPlayerNumber) continue;
                                         //Filling the Struct with enemyPlayer info
                                         allPlayerInfo[j] = malloc(sizeof(PLAYERINFO));
                                         set_EnemyPlayerParam(allPlayerInfo[j]);
@@ -325,7 +332,28 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                                         else{
                                             printf("SERVER: Player Number %d (%s) isn't ready yet!\n", enemyPlayerNumber, enemyPlayerName);
                                         }
+                                    }*/
+                                    
+                                    sscanf(line, "+ %d %[^\t]", &enemyPlayerNumber, enemyPlayerName);
+                                    if (enemyPlayerNumber == myPlayerNumber){
+                                        memset(enemyPlayerName, 0, wordlength);
+                                        continue;
                                     }
+                                        isReady = enemyPlayerName[strlen(enemyPlayerName)-1] -48;
+                                        enemyPlayerName [strlen(enemyPlayerName) -2] = '\0';
+                                        //printf("The question is, is %s ready?\n The Answer is: %d\n",enemyPlayerName, isReady);
+                                        //Filling the Struct with enemyPlayer info
+                                        allPlayerInfo[j] = malloc(sizeof(PLAYERINFO));
+                                        set_EnemyPlayerParam(allPlayerInfo[j]);
+                                        if(isReady){
+                                            printf("SERVER: Player Number %d (%s) is ready!\n", enemyPlayerNumber, enemyPlayerName);
+                                        }
+                                        else{
+                                            printf("SERVER: Player Number %d (%s) isn't ready yet!\n", enemyPlayerNumber, enemyPlayerName);
+                                        }
+                                        printf("So far: MyplayerNumber = %d\nMyPlayerName = %s\nEnemyPlayerNumber = %d\nEnemyPlayerName = %s\nEnemyPlayerReady:%d\n",myPlayerNumber,myPlayerName,enemyPlayerNumber,enemyPlayerName,isReady);
+                                    
+                                    
                                 }
                                 /*after prologue: all relevant data is availabe --> setup can be finished
                                 by creating actual shared memory segment and filling the structs*/

@@ -457,7 +457,7 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                                     printf("Player Number %d IS THE WINNER!!!! CONGRATULATIONS\n", shm_allPlayerInfo[1]->playerNumber);
                                 }
                                 else{
-                                    printf("IT'S A DRAW!!!! WELL PLAYED %s and %s\n", shm_allPlayerInfo[0]->playerName, shm_allPlayerInfo[1]->playerName);
+                                    printf("IT'S A DRAW!!!! WELL PLAYED Player Number %d and Player Number %d\n", shm_allPlayerInfo[0]->playerNumber, shm_allPlayerInfo[1]->playerNumber);
                                 }
 
                                 if(close(epoll_fd)){

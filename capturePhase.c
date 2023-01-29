@@ -57,6 +57,7 @@ char *captureAPiece(PLAYERINFO *enemyPlayer) {
                 }
             }
         }
+        else continue;
 
         //append position of currentPiece to captureSeq and terminate function if piece is not part of a mill
         if(!partOfMill) {

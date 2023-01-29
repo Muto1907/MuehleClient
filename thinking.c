@@ -72,16 +72,17 @@ void think(void* ptr_thinker, int tc_pipe[])
         }
         dumpGameCurrent(player, game);
         printf("Thinker Pieces to be Captured shm: %d\n",game->piecesToBeCaptured);
-        //check if last piece is still Available. If not setPhase is over
+
         if(game->piecesToBeCaptured > 0){
             printf("In the While Loop\n");
             strcpy(buff, captureAPiece(&player[game->enemyPlayerNumber]));
             
         }
+        //check if last piece is still Available. If not setPhase is over
 
-        else if(strcmp(player->piece[8].pos, "A") == 0){
+        else if(strcmp(player[game->myPlayerNumber].piece[8].pos, "A") == 0){
             //setPhase begins here:
-            strcpy(buff, setPiece (player->piece));
+            strcpy(buff, setPiece (player[game->myPlayerNumber].piece));
 
         }
         else {

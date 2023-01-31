@@ -14,16 +14,22 @@
 char captureSeq[1024];
 bool partOfMill = false;
 
+int perturb(int i) {
+    return 3*i+1;
+}
+
 char *captureAPiece(PLAYERINFO *enemyPlayer) {
     time_t now = time(NULL);
     srand(now);
+    int iter = 0;
 
     while(true) { //try different pieces until current piece is not part of a mill
         memset(captureSeq, 0, 1024);
         strcpy(captureSeq, "PLAY ");
 
         //choosing a random piece from enemyPlayer
-        int randPiece = rand() %9;
+        int randPiece = (rand()+perturb(iter)) %9;
+        iter++;
         printf("randPiece value: %d\n", randPiece);
         PIECEINFO currentPiece = enemyPlayer->piece[randPiece];
 

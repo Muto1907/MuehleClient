@@ -11,6 +11,10 @@ char buf[1024];
 //char result[6];
 char coordinates[12];
 
+int perturb(int i) {
+    return 3*i+1;
+}
+
 char* setPiece( PIECEINFO* piece){
 
     //memset(result, 0, 6);
@@ -19,6 +23,7 @@ char* setPiece( PIECEINFO* piece){
     //initialize 2 random integers by using time so the ints vary on each run
     time_t now = time(NULL);
     srand(now); 
+    int iter = 0;
     int positionR = rand() % 3;
     int positionS = rand() % 8;
     //test
@@ -26,10 +31,11 @@ char* setPiece( PIECEINFO* piece){
     //check if the position is free if not pick another random position
      while(!isFreeBoardArr(positionR, positionS)){
 
-            positionR = rand() % 3;
-            positionS = rand() % 8;
+            positionR = (rand()+perturb(iter)) % 3;
+            positionS = (rand()+perturb(iter)) % 8;
             //test
             printf("Changed numbers to %d and %d\n", positionR, positionS);
+            iter++;
     }
     //bring the PLAY command into protocoll-format
     strcpy(coordinates, remapCoordinates(positionR, positionS));

@@ -6,6 +6,6 @@
 #include <time.h>
 #include "shmConnectorThinker.h"
 
-char *jump(PLAYERINFO *);
+char *jump(PLAYERINFO *, int);
 
 #endif

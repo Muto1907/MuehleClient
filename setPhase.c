@@ -15,15 +15,14 @@ char coordinates[12];
     return 3*i+1;
 } */
 
-char* setPiece( PIECEINFO* piece){
+char* setPiece( PIECEINFO* piece, int iter){
 
     //memset(result, 0, 6);
     memset(buf, 0, 1024);
     strcpy(buf, "PLAY ");
     //initialize 2 random integers by using time so the ints vary on each run
     time_t now = time(NULL);
-    srand(now); 
-    int iter = 0;
+    srand(now);
     int positionR = rand() % 3;
     int positionS = rand() % 8;
     //test

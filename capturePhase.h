@@ -6,6 +6,6 @@
 #include <time.h>
 #include "shmConnectorThinker.h"
 
-char *captureAPiece(PLAYERINFO *);
+char *captureAPiece(PLAYERINFO *, int);
 
 #endif

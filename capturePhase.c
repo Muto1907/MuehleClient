@@ -18,10 +18,9 @@ bool partOfMill = false;
     return 3*i+1;
 } */
 
-char *captureAPiece(PLAYERINFO *enemyPlayer) {
+char *captureAPiece(PLAYERINFO *enemyPlayer, int iter) {
     time_t now = time(NULL);
     srand(now);
-    int iter = 0;
 
     while(true) { //try different pieces until current piece is not part of a mill
         memset(captureSeq, 0, 1024);
@@ -30,15 +29,13 @@ char *captureAPiece(PLAYERINFO *enemyPlayer) {
         //choosing a random piece from enemyPlayer
         int randPiece = (rand()+3*iter+1) %9;
         iter++;
-        printf("randPiece value: %d\n", randPiece);
+        printf("in capturePhase: randPiece value: %d\n", randPiece);
         PIECEINFO currentPiece = enemyPlayer->piece[randPiece];
 
         //get corresponding board position for the currentPiece
         int* pos = mapCoord(currentPiece);
         int coordR = pos[0];
         int coordS = pos[1];
-
-        printf("Position von Spielstein %d, Position: %s, entspricht: %d%d\n", currentPiece.piecenum, enemyPlayer->piece[randPiece].pos, coordR, coordS);
 
         //check if chosen piece is part of a mill and cannot be captured
         if(strcmp(currentPiece.pos, "A") != 0 && strcmp(currentPiece.pos, "C") != 0) {

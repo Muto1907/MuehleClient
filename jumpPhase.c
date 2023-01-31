@@ -17,10 +17,9 @@ char jumpSeq[1024];
     return 3*i+1;
 } */
 
-char *jump(PLAYERINFO *currentPlayer) {
+char *jump(PLAYERINFO *currentPlayer, int iter) {
     time_t now = time(NULL);
     srand(now);
-    int iter = 0;
 
     while(true) { //try different piece until piece is not yet captured
         memset(jumpSeq, 0, 1024);

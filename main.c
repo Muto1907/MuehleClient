@@ -132,6 +132,7 @@ int main(int argc,char**argv){
 
     char game_id[15]= {};
     char playernumber[2]={};
+    int playernum;
     int option;
 
     PARAM_CONFIG_T  config;
@@ -145,6 +146,7 @@ int main(int argc,char**argv){
             strcpy(game_id, optarg);
             break;
             case 'p':
+            playernum = atoi(optarg);
             strcpy(playernumber, optarg);
             break;
             case 'f':
@@ -205,7 +207,7 @@ int main(int argc,char**argv){
         if (socketfd == -1)
             errFunctionFailed ("getSocketDescriptorAndConnect");
         else
-            performConnection(socketfd, game_id, &config, initial_shm_ptr, tc_pipe);
+            performConnection(socketfd, playernum, game_id, &config, initial_shm_ptr, tc_pipe);
 
         _exit(0);
 

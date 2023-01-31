@@ -193,7 +193,7 @@ void finishSetup(int *initial_shm_ptr){
 
 
 //entire TCP Protocoll
-int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int *initial_shm, int tc_pipe[]){
+int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARAM_CONFIG_T* cfg, int *initial_shm, int tc_pipe[]){
     bool gameOver = false;
     //char moveCommand [BUF];
 
@@ -202,6 +202,10 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
 	strcpy(formatgameID, "ID ");
 	strcat(formatgameID, gameID);
 	strcat(formatgameID, "\n");
+
+    // Message to Request the Playernumber from Server
+    char playerNumCommand [wordlength];    
+    memset(playerNumCommand, 0, wordlength);
 
     int serverMessageCount = 0;
 
@@ -306,7 +310,14 @@ int performConnection(int fileDescriptor, char* gameID, PARAM_CONFIG_T* cfg, int
                                 printf("SERVER: Playing %s\nSERVER: GameName: %s\n", gameKindName,gameName); 
                                 
                                 //Sending empty Playernumber means Server decides which number we get. 
-                                sendMsgToServer(fileDescriptor, "PLAYER\n");      
+                                if (getoptPlayerNum > 0){
+                                    sprintf(playerNumCommand, "PLAYER %d\n", getoptPlayerNum - 1);
+                                    sendMsgToServer(fileDescriptor, playerNumCommand);
+                                }
+                                else{
+                                    sendMsgToServer(fileDescriptor, "PLAYER\n"); 
+                                }
+                                      
                             }
                             
                             //fifth Server-Message: our Playernumber and Playername

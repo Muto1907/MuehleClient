@@ -6,6 +6,6 @@
 #include <stdio.h>
 #include <string.h>
 
-char *makeAMove( PLAYERINFO *);
+char *makeAMove( PLAYERINFO *, int);
 
 #endif

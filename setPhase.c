@@ -11,14 +11,18 @@ char buf[1024];
 //char result[6];
 char coordinates[12];
 
-char* setPiece( PIECEINFO* piece){
+/* int perturb(int i) {
+    return 3*i+1;
+} */
+
+char* setPiece( PIECEINFO* piece, int iter){
 
     //memset(result, 0, 6);
     memset(buf, 0, 1024);
     strcpy(buf, "PLAY ");
     //initialize 2 random integers by using time so the ints vary on each run
     time_t now = time(NULL);
-    srand(now); 
+    srand(now);
     int positionR = rand() % 3;
     int positionS = rand() % 8;
     //test
@@ -26,8 +30,9 @@ char* setPiece( PIECEINFO* piece){
     //check if the position is free if not pick another random position
      while(!isFreeBoardArr(positionR, positionS)){
 
-            positionR = rand() % 3;
-            positionS = rand() % 8;
+            positionR = (rand()+3*iter+1) % 3;
+            positionS = (rand()+3*iter+1) % 8;
+            iter++;
             //test
             printf("Changed numbers to %d and %d\n", positionR, positionS);
     }

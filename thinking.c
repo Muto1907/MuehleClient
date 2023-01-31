@@ -23,6 +23,7 @@ char result[6];
 int resultingPos[2];
 bool flagPrt= true;
 char buff[1024];
+int iter = 0;
 
 //for test purposes only
 /* void printBoard() {
@@ -76,14 +77,15 @@ void think(void* ptr_thinker, int tc_pipe[])
 
         if(game->piecesToBeCaptured > 0){
             printf("In the While Loop\n");
-            strcpy(buff, captureAPiece(&player[game->enemyPlayerNumber]));
-            
+            strcpy(buff, captureAPiece(&player[game->enemyPlayerNumber], iter));
+            iter = (iter+1) %17;
         }
         //check if last piece is still Available. If not setPhase is over
 
         else if(strcmp(player[game->myPlayerNumber].piece[8].pos, "A") == 0){
             //setPhase begins here:
-            strcpy(buff, setPiece (player[game->myPlayerNumber].piece));
+            strcpy(buff, setPiece (player[game->myPlayerNumber].piece, iter));
+            iter = (iter+1) %17;
 
         }
         else if(countPieces(player[game->myPlayerNumber]) > 3){ //player has more than three pieces on board
@@ -91,14 +93,16 @@ void think(void* ptr_thinker, int tc_pipe[])
 				printf("Set-Phase is over\n");
 			flagPrt = false;
             //MovePhase begins here:
-            strcpy(buff, makeAMove(&player[game->myPlayerNumber]));
+            strcpy(buff, makeAMove(&player[game->myPlayerNumber], iter));
+            iter = (iter+1) %17;
             //printBoard();
 
             printf("this is the command: %s\n", buff);
         }
         else {//player has three pieces on board
             //JumpPhase begins here:
-            strcpy(buff, jump(&player[game->myPlayerNumber]));
+            strcpy(buff, jump(&player[game->myPlayerNumber], iter));
+            iter = (iter+1) %17;
 
             printf("Jumpcommand: %s\n", buff);
         }

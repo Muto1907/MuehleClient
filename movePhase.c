@@ -13,24 +13,35 @@
 char moveSeq[1024];
 char currentPosition[24];
 
-char *makeAMove( PLAYERINFO *currentPlayer) {
+/* int perturb(int i) {
+    return 3*i+1;
+} */
+
+char *makeAMove( PLAYERINFO *currentPlayer, int iter) {
 
     time_t now = time(NULL);
     srand(now);
+
+    int randPiece = (rand()+3*iter+1) % 9;
 
     while(true) { //try different pieces until some neighbouring place for current piece is free and function terminates
         memset(moveSeq, 0, 1024);
         strcpy(moveSeq, "PLAY ");
 
         //choosing a random piece from currentPlayer
-        int randPiece = rand() % 9;
-        printf("randPiece value: %d\n", randPiece);
+        printf("in movePhase: randPiece value before new assignment: %d\n", randPiece);
+        randPiece = (rand()+3*iter+1) % 9; //perturbance makes different piece choice for each iteration more likely
+        iter++;
+        printf("Iteration count: %d\n", iter);
+        printf("randPiece value after new assignment: %d\n", randPiece);
 
         //check if piece is already captured or available (shouldn't be the case at this stage)
         //if so try a different random piece number
         while(strcmp(currentPlayer->piece[randPiece].pos, "C") == 0 || strcmp(currentPlayer->piece[randPiece].pos, "A") == 0) {
             printf("currentPiece is captured.\n");
-            randPiece = rand() % 9;
+            randPiece = (rand()+3*iter+1) % 9;
+            printf("This is the current random number: %d\n", randPiece);
+            iter++;
         }
         PIECEINFO currentPiece = currentPlayer->piece[randPiece];
         strcat(moveSeq, currentPiece.pos);
@@ -76,6 +87,7 @@ char *makeAMove( PLAYERINFO *currentPlayer) {
                     }
             }
         }
+        printf("Current piece rejected.\n");
     }
 
     errFunctionFailed("makeAMove");

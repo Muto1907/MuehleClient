@@ -13,9 +13,9 @@
 char moveSeq[1024];
 char currentPosition[24];
 
-int perturb(int i) {
+/* int perturb(int i) {
     return 3*i+1;
-}
+} */
 
 char *makeAMove( PLAYERINFO *currentPlayer) {
 
@@ -28,14 +28,15 @@ char *makeAMove( PLAYERINFO *currentPlayer) {
         strcpy(moveSeq, "PLAY ");
 
         //choosing a random piece from currentPlayer
-        int randPiece = (rand()+perturb(iter)) % 9; //perturbance makes different piece choice for each iteration more likely
+        int randPiece = (rand()+3*iter+1) % 9; //perturbance makes different piece choice for each iteration more likely
+        iter++;
         printf("randPiece value: %d\n", randPiece);
 
         //check if piece is already captured or available (shouldn't be the case at this stage)
         //if so try a different random piece number
         while(strcmp(currentPlayer->piece[randPiece].pos, "C") == 0 || strcmp(currentPlayer->piece[randPiece].pos, "A") == 0) {
             printf("currentPiece is captured.\n");
-            randPiece = (rand()+perturb(iter)) % 9;
+            randPiece = (rand()+3*iter+1) % 9;
             iter++;
         }
         PIECEINFO currentPiece = currentPlayer->piece[randPiece];
@@ -82,7 +83,6 @@ char *makeAMove( PLAYERINFO *currentPlayer) {
                     }
             }
         }
-        iter++;
     }
 
     errFunctionFailed("makeAMove");

@@ -13,9 +13,9 @@
 //initialising return string
 char jumpSeq[1024];
 
-int perturb(int i) {
+/* int perturb(int i) {
     return 3*i+1;
-}
+} */
 
 char *jump(PLAYERINFO *currentPlayer) {
     time_t now = time(NULL);
@@ -27,14 +27,16 @@ char *jump(PLAYERINFO *currentPlayer) {
         strcpy(jumpSeq, "PLAY ");
 
         //choosing a random piece from currentPlayer
-        int randPiece = (rand()+perturb(iter)) %9;
+        int randPiece = (rand()+3*iter+1) %9;
+        iter++;
         printf("randPiece value: %d\n", randPiece);
         PIECEINFO currentPiece = currentPlayer->piece[randPiece];
 
         if(strcmp(currentPiece.pos, "A") != 0 && strcmp(currentPiece.pos, "C") != 0) {
             while(true){ //try different positions on board until free
-                int ring = (rand()+perturb(iter)) %3;
-                int spot = (rand()+perturb(iter)) %8;
+                int ring = (rand()+3*iter+1) %3;
+                int spot = (rand()+3*iter+1) %8;
+                iter++;
                 if(isFreeBoardArr(ring, spot)) {
                     strcat(jumpSeq, currentPiece.pos);
                     strcat(jumpSeq, ":");
@@ -42,10 +44,8 @@ char *jump(PLAYERINFO *currentPlayer) {
                     strcat(jumpSeq, "\n");
                     return jumpSeq;
                 }
-                iter++;
             }
         }
-        iter++;
     }
     errFunctionFailed("jump");
     return "DON'T JUMP";

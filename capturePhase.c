@@ -14,9 +14,9 @@
 char captureSeq[1024];
 bool partOfMill = false;
 
-int perturb(int i) {
+/* int perturb(int i) {
     return 3*i+1;
-}
+} */
 
 char *captureAPiece(PLAYERINFO *enemyPlayer) {
     time_t now = time(NULL);
@@ -28,7 +28,7 @@ char *captureAPiece(PLAYERINFO *enemyPlayer) {
         strcpy(captureSeq, "PLAY ");
 
         //choosing a random piece from enemyPlayer
-        int randPiece = (rand()+perturb(iter)) %9;
+        int randPiece = (rand()+3*iter+1) %9;
         iter++;
         printf("randPiece value: %d\n", randPiece);
         PIECEINFO currentPiece = enemyPlayer->piece[randPiece];

@@ -462,10 +462,10 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                             else if(strcmp(line, "+ QUIT") == 0){
                                 
                                 if(shm_allPlayerInfo[0]->isWinner && !(shm_allPlayerInfo[1]->isWinner)){
-                                    printf("Player Number %d IS THE WINNER!!!! CONGRATULATIONS\n", shm_allPlayerInfo[0]->playerNumber);
+                                    printf("Player Number 0 IS THE WINNER!!!! CONGRATULATIONS\n");
                                 }
                                 else if((!shm_allPlayerInfo[0]->isWinner) && shm_allPlayerInfo[1]->isWinner){
-                                    printf("Player Number %d IS THE WINNER!!!! CONGRATULATIONS\n", shm_allPlayerInfo[1]->playerNumber);
+                                    printf("Player Number 1 IS THE WINNER!!!! CONGRATULATIONS\n");
                                 }
                                 else{
                                     printf("IT'S A DRAW!!!! WELL PLAYED Player Number %d and Player Number %d\n", shm_allPlayerInfo[0]->playerNumber, shm_allPlayerInfo[1]->playerNumber);

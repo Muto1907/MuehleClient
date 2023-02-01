@@ -100,6 +100,7 @@ void getServermsg(int fileDescriptor){
 
 void sendMsgToServer(int fileDescriptor, char* msgInput) {
 	strcpy(clientMsg, msgInput);
+    //printf("pC line 103: clientMsg: %p, %p\nmsgInput: %p, %p\n", &clientMsg, clientMsg, &msgInput, msgInput);
 	if(send(fileDescriptor, clientMsg, strlen(clientMsg), 0) < 0){
 		printf("Error Client message could not be sent.\n");
 	} else {
@@ -114,6 +115,7 @@ void set_GameParam(GAMEINFO *gameInfo)
     if(gameInfo)
     {
         strcpy(gameInfo->gameName, gameKindName);
+        //printf("pC line 119: gameInfo->gameName %p, %p\ngameKindName: %p, %p\n", &gameInfo->gameName, gameInfo->gameName, &gameKindName, gameKindName);
         gameInfo->myPlayerNumber = myPlayerNumber;
         gameInfo->countPlayer = playerCount;
         gameInfo->idThinker = getppid();
@@ -125,6 +127,7 @@ void set_GameParam(GAMEINFO *gameInfo)
 void set_MyPlayerParam(PLAYERINFO *playerInfo)
 { 
     strcpy(playerInfo->playerName, myPlayerName);
+    //printf("pC line 131: playerInfo->playerName %p, %p\nmyPlayerName: %p, %p\n", &playerInfo->playerName,playerInfo->playerName, &myPlayerName, myPlayerName);
     playerInfo->playerNumber = myPlayerNumber;
     playerInfo->ready = 1;
     playerInfo->isWinner = false;
@@ -306,6 +309,7 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                     printf("Error: Wrong Game selected!\n");
                                 }
                                 strcpy(gameName, linesOfServerMsg[i+1]);
+                                //printf("pC line 313: gameName %p, %p\nlinesOfServerMsg: %p, %p\n", &gameName,gameName, &linesOfServerMsg[i+1], linesOfServerMsg[i+1]);
                                 
                                 printf("SERVER: Playing %s\nSERVER: GameName: %s\n", gameKindName,gameName); 
                                 
@@ -332,6 +336,7 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                 printf("SERVER: Number of participating Players: %d\n", playerCount);
                                 for(int j = 0; j < playerCount; j++){
                                     strcpy(line, linesOfServerMsg[i +j]);
+                                    //printf("pC line 335: line %p, %p\nlinesOfServerMsg: %p, %p\n", &line, line, &linesOfServerMsg[i+j], linesOfServerMsg[i+j]);
 
                                     /*if(sscanf(line, "+ %d %s %s %d", &enemyPlayerNumber, enemyPlayerName, rest, &isReady) == 4){
                                         printf("IsReady at the momment = %d\n", isReady);
@@ -352,6 +357,7 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                         memset(enemyPlayerName, 0, wordlength);
                                         continue;
                                     }
+                                        //printf("after continue\n");
                                         isReady = enemyPlayerName[strlen(enemyPlayerName)-1] -48;
                                         enemyPlayerName [strlen(enemyPlayerName) -2] = '\0';
                                         //printf("The question is, is %s ready?\n The Answer is: %d\n",enemyPlayerName, isReady);
@@ -398,6 +404,7 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                             else if(sscanf(line,"+ PIECE%d.%d %s", &playerNumber, &pieceNumber, piecePosition) == 3){
                                 //pieceNumber = atoi(pieceNumberstr);
                                 strcpy(shm_allPlayerInfo[playerNumber]->piece[pieceNumber].pos, piecePosition);
+                                //printf("pC line 407: shm_allPlayerInfo: %p, %p\npiecePos: %p, %p", &shm_allPlayerInfo[playerNumber]->piece[pieceNumber].pos, shm_allPlayerInfo[playerNumber]->piece[pieceNumber].pos, &piecePosition, piecePosition);
                                 shm_allPlayerInfo[playerNumber]->piece[pieceNumber].piecenum = pieceNumber;
                                 shm_allPlayerInfo[playerNumber]->piece[pieceNumber].playerNum = playerNumber;
                                 printf("PIECE%d.%d %s\n",playerNumber, pieceNumber, piecePosition);
@@ -489,7 +496,7 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                 }
             }
             else if(events[j].data.fd == tc_pipe[0]){
-                    if(read(tc_pipe[0], &move, READ_SIZE + 1) == -1){
+                    if(read(tc_pipe[0], &move, POSITIONLENGTH) == -1){
                         perror("connector process can't read from pipe.\n");
                         return -1;
                     }

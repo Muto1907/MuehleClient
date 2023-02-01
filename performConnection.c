@@ -328,8 +328,6 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                             //fifth Server-Message: our Playernumber and Playername
                             else if(sscanf(line, "+ YOU %d %[^\t\n]", &myPlayerNumber, myPlayerName)){
                                 printf("SERVER: Your Playernumber: %d\nSERVER: Your Playername: %s\n", myPlayerNumber, myPlayerName);
-                                allPlayerInfo[myPlayerNumber] = malloc(sizeof(PLAYERINFO));
-                                set_MyPlayerParam(allPlayerInfo[myPlayerNumber]);
                             }
 
                             //sixth ++ Server-Message: Total Player Number and Data of enemy Players
@@ -354,17 +352,20 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                     }*/
                                     
                                     sscanf(line, "+ %d %[^\t]", &enemyPlayerNumber, enemyPlayerName);
-                                    if (enemyPlayerNumber == myPlayerNumber){
-                                        memset(enemyPlayerName, 0, wordlength);
-                                        continue;
-                                    }
+
                                         //printf("after continue\n");
                                         isReady = enemyPlayerName[strlen(enemyPlayerName)-1] -48;
                                         enemyPlayerName [strlen(enemyPlayerName) -2] = '\0';
                                         //printf("The question is, is %s ready?\n The Answer is: %d\n",enemyPlayerName, isReady);
                                         //Filling the Struct with enemyPlayer info
                                         allPlayerInfo[j] = malloc(sizeof(PLAYERINFO));
+                                        if(j == myPlayerNumber){
+                                            set_MyPlayerParam(allPlayerInfo[myPlayerNumber]);
+                                        }
+                                        else{
                                         set_EnemyPlayerParam(allPlayerInfo[j]);
+                                        }
+
                                         if(isReady){
                                             printf("SERVER: Player Number %d (%s) is ready!\n", enemyPlayerNumber, enemyPlayerName);
                                         }

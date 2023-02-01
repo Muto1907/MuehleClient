@@ -12,7 +12,7 @@
 #include "shmConnectorThinker.h"
 
 #define wordlength 128
-#define POSITIONLENGTH 8
+#define POSITIONLENGTH 16
 #define BUF 1024
 #define CLIENTVERSION "VERSION 3.1\n"
 #define EXIT_ERROR  (-1)

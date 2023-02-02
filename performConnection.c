@@ -202,8 +202,7 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
     //char moveCommand [BUF];
 
 	// create Client message for gameID
-	char formatgameID [18];
-	strcpy(formatgameID, "ID ");
+	char formatgameID [18] = "ID ";
 	strcat(formatgameID, gameID);
 	strcat(formatgameID, "\n");
 
@@ -334,7 +333,7 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                             else if(sscanf(line, "+ TOTAL %d", &playerCount) == 1){
                                 printf("SERVER: Number of participating Players: %d\n", playerCount);
                                 for(int j = 0; j < playerCount; j++){
-                                    strcpy(line, linesOfServerMsg[i +j]);
+                                    memmove(line, linesOfServerMsg[i +j],strlen(linesOfServerMsg[i+j]));
                                     //printf("pC line 335: line %p, %p\nlinesOfServerMsg: %p, %p\n", &line, line, &linesOfServerMsg[i+j], linesOfServerMsg[i+j]);
 
                                     /*if(sscanf(line, "+ %d %s %s %d", &enemyPlayerNumber, enemyPlayerName, rest, &isReady) == 4){

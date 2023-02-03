@@ -182,9 +182,7 @@ void finishSetup(int *initial_shm_ptr){
 
     //PLAYERINFO *shm_allPlayerInfo[shm_gameInfo->countPlayer]; //pointer to player info; actual number of players taken into account
     
-    //TEST send signal to thinker
-    //kill(shm_gameInfo->idThinker, SIGUSR1);
-    //printf("Connector: SIGUSR1 sent\n");
+
 
     //cleanup
 
@@ -284,7 +282,6 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                 }
                 //+ means the Server is giving a positive Response
                 else if(serverMsg[0] =='+'){
-                    //printf("SERVERMSG: %s", serverMsg);
                     linesOfServerMsg = serverMsgToLines(serverMsg,tokenArray);
                     for(int i = 0; i < wordlength; i++){
                         char *line = linesOfServerMsg[i];
@@ -309,7 +306,7 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                     printf("Error: Wrong Game selected!\n");
                                 }
                                 strcpy(gameName, linesOfServerMsg[i+1]);
-                                //printf("pC line 313: gameName %p, %p\nlinesOfServerMsg: %p, %p\n", &gameName,gameName, &linesOfServerMsg[i+1], linesOfServerMsg[i+1]);
+                              
                                 
                                 printf("SERVER: Playing %s\nSERVER: GameName: %s\n", gameKindName,gameName); 
                                 
@@ -334,28 +331,12 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                 printf("SERVER: Number of participating Players: %d\n", playerCount);
                                 for(int j = 0; j < playerCount; j++){
                                     memmove(line, linesOfServerMsg[i +j],strlen(linesOfServerMsg[i+j]));
-                                    //printf("pC line 335: line %p, %p\nlinesOfServerMsg: %p, %p\n", &line, line, &linesOfServerMsg[i+j], linesOfServerMsg[i+j]);
-
-                                    /*if(sscanf(line, "+ %d %s %s %d", &enemyPlayerNumber, enemyPlayerName, rest, &isReady) == 4){
-                                        printf("IsReady at the momment = %d\n", isReady);
-                                        if (enemyPlayerNumber == myPlayerNumber) continue;
-                                        //Filling the Struct with enemyPlayer info
-                                        allPlayerInfo[j] = malloc(sizeof(PLAYERINFO));
-                                        set_EnemyPlayerParam(allPlayerInfo[j]);
-                                        if(isReady){
-                                            printf("SERVER: Player Number %d (%s) is ready!\n", enemyPlayerNumber, enemyPlayerName);
-                                        }
-                                        else{
-                                            printf("SERVER: Player Number %d (%s) isn't ready yet!\n", enemyPlayerNumber, enemyPlayerName);
-                                        }
-                                    }*/
+                                   
                                     
                                     sscanf(line, "+ %d %[^\t]", &enemyPlayerNumber, enemyPlayerName);
 
-                                        //printf("after continue\n");
                                         isReady = enemyPlayerName[strlen(enemyPlayerName)-1] -48;
                                         enemyPlayerName [strlen(enemyPlayerName) -2] = '\0';
-                                        //printf("The question is, is %s ready?\n The Answer is: %d\n",enemyPlayerName, isReady);
                                         //Filling the Struct with enemyPlayer info
                                         allPlayerInfo[j] = malloc(sizeof(PLAYERINFO));
                                         if(j == myPlayerNumber){
@@ -400,33 +381,26 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
 
                             else  if(sscanf(line,"+ PIECELIST %d,%d", &playerCount, &piecesCount) == 2){
                                 printf("Server: Number of pieces for each Player: %d\n", piecesCount);
+                                
+
                             }
 
                             else if(sscanf(line,"+ PIECE%d.%d %s", &playerNumber, &pieceNumber, piecePosition) == 3){
-                                //pieceNumber = atoi(pieceNumberstr);
                                 strcpy(shm_allPlayerInfo[playerNumber]->piece[pieceNumber].pos, piecePosition);
-                                //printf("pC line 407: shm_allPlayerInfo: %p, %p\npiecePos: %p, %p", &shm_allPlayerInfo[playerNumber]->piece[pieceNumber].pos, shm_allPlayerInfo[playerNumber]->piece[pieceNumber].pos, &piecePosition, piecePosition);
                                 shm_allPlayerInfo[playerNumber]->piece[pieceNumber].piecenum = pieceNumber;
                                 shm_allPlayerInfo[playerNumber]->piece[pieceNumber].playerNum = playerNumber;
                                 printf("PIECE%d.%d %s\n",playerNumber, pieceNumber, piecePosition);
                                 memset(piecePosition,0,POSITIONLENGTH);
-                                //memset(pieceNumberstr,0, POSITIONLENGTH);
                             }
                                 
 
-                                /*else if(sscanf(line,"+ PIECE1.%s %s", pieceNumberstr, piecePosition) == 2){
-                                    pieceNumber = atoi(pieceNumberstr);
-                                    //strcpy(playerinfo[0]->piece[pieceNumber].pos, piecePosition);
-                                    printf("PIECE1.%d %s\n", pieceNumber, piecePosition);
-                                    memset(piecePosition,0,POSITIONLENGTH);
-                                    memset(pieceNumberstr,0, POSITIONLENGTH);
-                                }*/
+
 
                             else if(strcmp(line, "+ ENDPIECELIST") == 0){
                                 printf("SERVER: ENDPIECESLIST.\n");
                                 if(!gameOver)
                                 sendMsgToServer(fileDescriptor,"THINKING\n");
-                                //printf("Message received\n");
+                                
                                 }   
 
                             else if(strcmp(line, "+ WAIT") == 0){
@@ -503,11 +477,6 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                         return -1;
                     }
                     else{
-                        printf("This is the move: %s\n", move);
-                        //memset(moveCommand, 0, BUF);
-                        
-                        //strcpy(moveCommand, move);
-                        //strcat(moveCommand, "\n");
 
                         sendMsgToServer(fileDescriptor, move);
                     }                

@@ -34,7 +34,7 @@ typedef struct {
     char playerName[256];
     bool ready;
     bool isWinner;
-    PIECEINFO piece[9];
+    PIECEINFO* piece;
 
 
 } PLAYERINFO;

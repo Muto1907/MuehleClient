@@ -13,10 +13,6 @@
 char moveSeq[1024];
 char currentPosition[24];
 
-/* int perturb(int i) {
-    return 3*i+1;
-} */
-
 char *makeAMove(PLAYERINFO *currentPlayer, int iter)
 {
 
@@ -31,19 +27,14 @@ char *makeAMove(PLAYERINFO *currentPlayer, int iter)
         strcpy(moveSeq, "PLAY ");
 
         // choosing a random piece from currentPlayer
-        printf("in movePhase: randPiece value before new assignment: %d\n", randPiece);
         randPiece = (rand() + 3 * iter + 1) % 9; // perturbance makes different piece choice for each iteration more likely
         iter++;
-        printf("Iteration count: %d\n", iter);
-        printf("randPiece value after new assignment: %d\n", randPiece);
 
         // check if piece is already captured or available (shouldn't be the case at this stage)
         // if so try a different random piece number
         while (strcmp(currentPlayer->piece[randPiece].pos, "C") == 0 || strcmp(currentPlayer->piece[randPiece].pos, "A") == 0)
         {
-            printf("currentPiece is captured.\n");
             randPiece = (rand() + 3 * iter + 1) % 9;
-            printf("This is the current random number: %d\n", randPiece);
             iter++;
         }
         PIECEINFO currentPiece = currentPlayer->piece[randPiece];
@@ -58,8 +49,6 @@ char *makeAMove(PLAYERINFO *currentPlayer, int iter)
         /* forall neighbouring places: check if free
         if so: move there and leave function
         else: continue searching */
-
-        printf("Position von Spielstein %d, Position: %s, entspricht: %d%d\n", currentPiece.piecenum, currentPlayer->piece[randPiece].pos, coordR, coordS);
 
         int order_lr = 0;   // determines in which order neighbours (left/right) on same ring are checked
         int order_ring = 0; // determines in which order neigbours (same/different ring) are checked

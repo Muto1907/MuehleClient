@@ -104,10 +104,6 @@ void signalHandler(int signal){
     printf("signalHandler %d\n",signal);
     if(signal == SIGUSR1){
 
-
-        //for test purpose
-        printf("thinking... shm_id %d\n",*initial_shm_ptr);
-
         //Attaching actual shared memory segment with id *initial_shm_ptr for internal communication with Connector
         //void *shmPtr_thinker; -> global variable
         if(flagInitialiseThinker) { //attach shm segment only once during initialisation of Thinker

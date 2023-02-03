@@ -14,10 +14,6 @@
 char captureSeq[1024];
 bool partOfMill = false;
 
-/* int perturb(int i) {
-    return 3*i+1;
-} */
-
 char *captureAPiece(PLAYERINFO *enemyPlayer, int iter) {
     time_t now = time(NULL);
     srand(now);
@@ -29,7 +25,6 @@ char *captureAPiece(PLAYERINFO *enemyPlayer, int iter) {
         //choosing a random piece from enemyPlayer
         int randPiece = (rand()+3*iter+1) %9;
         iter++;
-        printf("in capturePhase: randPiece value: %d\n", randPiece);
         PIECEINFO currentPiece = enemyPlayer->piece[randPiece];
 
         //get corresponding board position for the currentPiece

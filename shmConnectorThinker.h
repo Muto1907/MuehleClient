@@ -17,7 +17,6 @@ typedef struct {
     pid_t idConnector;
     bool flagProvideMove;
     int piecesToBeCaptured;
-    //bool gameGoing;
 
 } GAMEINFO;
 

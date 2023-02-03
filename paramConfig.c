@@ -14,7 +14,6 @@ void InitConfigParam ( PARAM_CONFIG_T* config )
 
 static char* trim(char* line)
 {
-    //printf("Trim [%s]->",line);
     char* res = line;
 
     while(*res == ' ')
@@ -31,7 +30,6 @@ static char* trim(char* line)
         else
             p++;
     }
-    //printf("[%s]\n",res);
     return res;
 }
 
@@ -45,7 +43,6 @@ static int processLine(PARAM_CONFIG_T* config, char* line)
         if(cutEq)
         {
             *cutEq = '\0';
-            //printf("line: [%s]\n",line);
             if(strstr(line, "Hostname"))
             {
                 strcpy(config->hostname, trim(cutEq+1));
@@ -81,7 +78,6 @@ int LoadConfigParam (PARAM_CONFIG_T* config,  char *fileName)
 
         while ((read = getline(&line, &len, fp)) != -1) 
         {
-            //printf("Line read: [%s]\n", line);
             if(processLine(config, line) == 0)
                 res = 0;
         }

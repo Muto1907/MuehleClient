@@ -13,5 +13,5 @@ bool isFreeBoardArr(int, int);
 
 int getPlayernumberForPiece(int, int);
 
-int countPieces(PLAYERINFO);
+int countPieces(PLAYERINFO, GAMEINFO *);
 #endif

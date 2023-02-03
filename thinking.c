@@ -26,9 +26,9 @@ char buff[1024];
 int iter = 0;
 
 
-int countPieces(PLAYERINFO player) {
+int countPieces(PLAYERINFO player, GAMEINFO *game) {
     int counter = 0;
-    for(int i=0; i < length(player.piece); i++) {
+    for(int i=0; i < game->piecesCount; i++) {
         if(strcmp(player.piece[i].pos, "A") != 0 && strcmp(player.piece[i].pos, "C") != 0)
             counter++;
     }
@@ -41,6 +41,8 @@ void think(void* ptr_thinker, int tc_pipe[])
     memset(buff, 0, 1024);
     GAMEINFO* game = (GAMEINFO*) ptr_thinker;
     PLAYERINFO *player = (PLAYERINFO *) (game+1);
+    player[0].piece = (PIECEINFO *) (player+1);
+    player[1].piece = player[0].piece+game->piecesCount+1;
 
     int rows = length(boardArr);
     int columns = length(boardArr[0]);
@@ -54,7 +56,7 @@ void think(void* ptr_thinker, int tc_pipe[])
     if(game->flagProvideMove)
     {
         for(int i = 0; i < game->countPlayer; i++){
-            for(int j = 0; j < length(player->piece); j++){
+            for(int j = 0; j < game->piecesCount; j++){
                 mapCoord(player[i].piece[j]);
             }
         }
@@ -73,7 +75,7 @@ void think(void* ptr_thinker, int tc_pipe[])
             iter = (iter+1) %17;
 
         }
-        else if(countPieces(player[game->myPlayerNumber]) > 3){ //player has more than three pieces on board
+        else if(countPieces(player[game->myPlayerNumber], game) > 3){ //player has more than three pieces on board
             if (flagPrt)
 			flagPrt = false;
             //MovePhase begins here:

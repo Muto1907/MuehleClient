@@ -143,10 +143,6 @@ void set_EnemyPlayerParam(PLAYERINFO *playerInfo)
 }
 
 void finishSetup(int *initial_shm_ptr){
-    //filling the structs
-
-    //local gameInfo only for creation of actual shm segment
-    gameInfo = malloc(sizeof(GAMEINFO));
 
     //filling gameInfo data
     set_GameParam(gameInfo);
@@ -178,8 +174,11 @@ void finishSetup(int *initial_shm_ptr){
     for(int i=1; i < gameInfo->countPlayer; i++){
         shm_allPlayerInfo[i]  = (PLAYERINFO *) shm_allPlayerInfo[i-1]+1; //pointing to address that is sizeof(PLAYERINFO) greater than shm_allPlayerInfo[0] 
         *shm_allPlayerInfo[i] = *allPlayerInfo[i]; 
+         //pointer to piece lists
+        shm_allPlayerInfo[i]->piece = (PIECEINFO *) (shm_allPlayerInfo[i]+1+i);
     } 
 
+    printf("after Playerinfo\n");
     //PLAYERINFO *shm_allPlayerInfo[shm_gameInfo->countPlayer]; //pointer to player info; actual number of players taken into account
     
 
@@ -191,6 +190,7 @@ void finishSetup(int *initial_shm_ptr){
         free(allPlayerInfo[i]);
     } 
     free(gameInfo);
+    printf("after free(gameInfo)\n");
 } 
 
 
@@ -356,10 +356,11 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                     
                                     
                                 }
-                                /*after prologue: all relevant data is availabe --> setup can be finished
-                                by creating actual shared memory segment and filling the structs*/
 
-                                finishSetup(initial_shm);
+                                //filling the structs
+
+                                //local gameInfo only for creation of actual shm segment
+                                gameInfo = malloc(sizeof(GAMEINFO));
                             }
                         
                             //End of Prologue
@@ -375,13 +376,20 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
 
                             else  if(sscanf(line,"+ CAPTURE %d", &piecesToBeCaptured) == 1){
                                 printf("Server: Pieces to be captured: %d\n", piecesToBeCaptured);
-                                shm_gameInfo->piecesToBeCaptured = piecesToBeCaptured;
-                                printf("Pieces to be Captured shm: %d\n",shm_gameInfo->piecesToBeCaptured);
+                                gameInfo->piecesToBeCaptured = piecesToBeCaptured;
+                                printf("Pieces to be Captured shm: %d\n",gameInfo->piecesToBeCaptured);
                             }
 
                             else  if(sscanf(line,"+ PIECELIST %d,%d", &playerCount, &piecesCount) == 2){
                                 printf("Server: Number of pieces for each Player: %d\n", piecesCount);
-                                
+                                gameInfo->piecesCount = piecesCount;
+
+
+                                /*after prologue: all relevant data is availabe --> setup can be finished
+                                by creating actual shared memory segment and filling the structs*/
+
+                                finishSetup(initial_shm);
+                                printf("after finishSetup\n");
 
                             }
 
@@ -392,9 +400,6 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                 printf("PIECE%d.%d %s\n",playerNumber, pieceNumber, piecePosition);
                                 memset(piecePosition,0,POSITIONLENGTH);
                             }
-                                
-
-
 
                             else if(strcmp(line, "+ ENDPIECELIST") == 0){
                                 printf("SERVER: ENDPIECESLIST.\n");

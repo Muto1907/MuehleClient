@@ -101,7 +101,6 @@ void getServermsg(int fileDescriptor){
 
 void sendMsgToServer(int fileDescriptor, char* msgInput) {
 	strcpy(clientMsg, msgInput);
-    //printf("pC line 103: clientMsg: %p, %p\nmsgInput: %p, %p\n", &clientMsg, clientMsg, &msgInput, msgInput);
 	if(send(fileDescriptor, clientMsg, strlen(clientMsg), 0) < 0){
 		printf("Error Client message could not be sent.\n");
 	} else {
@@ -116,7 +115,6 @@ void set_GameParam(GAMEINFO *gameInfo)
     if(gameInfo)
     {
         strcpy(gameInfo->gameName, gameKindName);
-        //printf("pC line 119: gameInfo->gameName %p, %p\ngameKindName: %p, %p\n", &gameInfo->gameName, gameInfo->gameName, &gameKindName, gameKindName);
         gameInfo->myPlayerNumber = myPlayerNumber;
         gameInfo->countPlayer = playerCount;
         gameInfo->idThinker = getppid();
@@ -128,7 +126,6 @@ void set_GameParam(GAMEINFO *gameInfo)
 void set_MyPlayerParam(PLAYERINFO *playerInfo)
 { 
     strcpy(playerInfo->playerName, myPlayerName);
-    //printf("pC line 131: playerInfo->playerName %p, %p\nmyPlayerName: %p, %p\n", &playerInfo->playerName,playerInfo->playerName, &myPlayerName, myPlayerName);
     playerInfo->playerNumber = myPlayerNumber;
     playerInfo->ready = 1;
     playerInfo->isWinner = false;

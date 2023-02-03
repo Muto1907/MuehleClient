@@ -25,18 +25,6 @@ bool flagPrt= true;
 char buff[1024];
 int iter = 0;
 
-//for test purposes only
-/* void printBoard() {
-    for(int ring = 0; ring < 3; ring ++) {
-        for(int spot = 0; spot < 8; spot ++) {
-            PIECEINFO currentPiece = boardArr[ring][spot];
-            printf("%s", currentPiece.pos);
-            printf("\t");
-        }
-        printf("\n");
-    }
-} */
-
 
 int countPieces(PLAYERINFO player) {
     int counter = 0;
@@ -62,8 +50,6 @@ void think(void* ptr_thinker, int tc_pipe[])
             boardArr[i][j] = dummy;
         }
     }
-    printf("thinking 2.0...\n");
-
 
     if(game->flagProvideMove)
     {
@@ -76,7 +62,6 @@ void think(void* ptr_thinker, int tc_pipe[])
         printf("Thinker Pieces to be Captured shm: %d\n",game->piecesToBeCaptured);
 
         if(game->piecesToBeCaptured > 0){
-            printf("In the While Loop\n");
             strcpy(buff, captureAPiece(&player[game->enemyPlayerNumber], iter));
             iter = (iter+1) %17;
         }
@@ -90,12 +75,10 @@ void think(void* ptr_thinker, int tc_pipe[])
         }
         else if(countPieces(player[game->myPlayerNumber]) > 3){ //player has more than three pieces on board
             if (flagPrt)
-				printf("Set-Phase is over\n");
 			flagPrt = false;
             //MovePhase begins here:
             strcpy(buff, makeAMove(&player[game->myPlayerNumber], iter));
             iter = (iter+1) %17;
-            //printBoard();
 
             printf("this is the command: %s\n", buff);
         }
@@ -115,7 +98,6 @@ void think(void* ptr_thinker, int tc_pipe[])
 
 
         game->flagProvideMove = false;
-		// TODO : KI
 	}
 }
 
@@ -162,9 +144,6 @@ static int MapPosition(char* pos)
 
 void dumpGameCurrent(PLAYERINFO* player, GAMEINFO* game)
 {
-    printf("dumpGameCurrent: Gameinfo %p, playerinfo %p\n",game,player);
-
-    //setTestPieces(player); //testing
     int numPlayer = game->countPlayer;
 
     char board[13][28];

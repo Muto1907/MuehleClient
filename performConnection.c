@@ -21,6 +21,7 @@
 #define MAX_EVENTS 4
 
 	
+int firstTime = 1;
 char serverMsg[BUF];
 char clientMsg[BUF];
 char** linesOfServerMsg;
@@ -383,9 +384,11 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
 
                                 /*after prologue: all relevant data is availabe --> setup can be finished
                                 by creating actual shared memory segment and filling the structs*/
-
+                                if (firstTime == 1){
                                 finishSetup(initial_shm);
                                 printf("after finishSetup\n");
+                                firstTime++;
+                                }
 
                             }
 

@@ -389,7 +389,7 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                 printf("after finishSetup\n");
                                 firstTime++;
                                 }
-
+                                shm_gameInfo->piecesToBeCaptured = piecesToBeCaptured;
                             }
 
                             else if(sscanf(line,"+ PIECE%d.%d %s", &playerNumber, &pieceNumber, piecePosition) == 3){
@@ -471,7 +471,7 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                 } 
                                 free(gameInfo);
                                 printf("after free(gameInfo)\n");
-                                clearShm(shm_id);
+                                //clearShm(shm_id);
                                 return 0;
 
                             }

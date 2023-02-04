@@ -327,30 +327,30 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                             else if(sscanf(line, "+ TOTAL %d", &playerCount) == 1){
                                 printf("SERVER: Number of participating Players: %d\n", playerCount);
                                 for(int j = 0; j < playerCount; j++){
-                                    memmove(line, linesOfServerMsg[i +j],strlen(linesOfServerMsg[i+j]));
                                    
                                     
-                                    sscanf(line, "+ %d %[^\t]", &enemyPlayerNumber, enemyPlayerName);
+                                    sscanf(linesOfServerMsg[i+j], "+ %d %[^\t] %d", &enemyPlayerNumber, enemyPlayerName, &isReady);
 
-                                        isReady = enemyPlayerName[strlen(enemyPlayerName)-1] -48;
+                                        //isReady = enemyPlayerName[strlen(enemyPlayerName)-1];
                                         enemyPlayerName [strlen(enemyPlayerName) -2] = '\0';
                                         //Filling the Struct with enemyPlayer info
                                         allPlayerInfo[j] = malloc(sizeof(PLAYERINFO));
                                         if(j == myPlayerNumber){
                                             set_MyPlayerParam(allPlayerInfo[myPlayerNumber]);
+                                            continue;
                                         }
                                         else{
                                         set_EnemyPlayerParam(allPlayerInfo[j]);
                                         }
 
-                                        if(isReady){
+                                        if(isReady == 1){
                                             printf("SERVER: Player Number %d (%s) is ready!\n", enemyPlayerNumber, enemyPlayerName);
                                         }
                                         else{
                                             printf("SERVER: Player Number %d (%s) isn't ready yet!\n", enemyPlayerNumber, enemyPlayerName);
                                         }
                                         printf("So far: MyplayerNumber = %d\nMyPlayerName = %s\nEnemyPlayerNumber = %d\nEnemyPlayerName = %s\nEnemyPlayerReady:%d\n",myPlayerNumber,myPlayerName,enemyPlayerNumber,enemyPlayerName,isReady);
-                                    
+
                                     
                                 }
 
@@ -448,10 +448,10 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                             else if(strcmp(line, "+ QUIT") == 0){
                                 
                                 if(shm_allPlayerInfo[0]->isWinner && !(shm_allPlayerInfo[1]->isWinner)){
-                                    printf("Player Number 0 IS THE WINNER!!!! CONGRATULATIONS\n");
+                                    printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", allPlayerInfo[0]->playerName);
                                 }
                                 else if((!shm_allPlayerInfo[0]->isWinner) && shm_allPlayerInfo[1]->isWinner){
-                                    printf("Player Number 1 IS THE WINNER!!!! CONGRATULATIONS\n");
+                                    printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", allPlayerInfo[1]->playerName);
                                 }
                                 else{
                                     printf("IT'S A DRAW!!!! WELL PLAYED Player Number %d and Player Number %d\n", shm_allPlayerInfo[0]->playerNumber, shm_allPlayerInfo[1]->playerNumber);

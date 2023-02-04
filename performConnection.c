@@ -210,8 +210,7 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
     char playerNumCommand [wordlength];    
     memset(playerNumCommand, 0, wordlength);
 
-    int serverMessageCount = 0;
-
+ 
     int epoll_fd = epoll_create1(0);
 
 
@@ -247,40 +246,12 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
             if(events[j].data.fd == fileDescriptor){       
                     
                 getServermsg(fileDescriptor);
-                serverMessageCount++;
+
 
                 
                 //if serverMessage begins with '-' an Error occured.
                 if(serverMsg[0] == '-'){
-
-                    switch(serverMessageCount){
-                        case 1 :
-                            //Error GameServer not accepting connections
-                            printf("ERROR: Gameserver not responding\n");
-                            exit(EXIT_ERROR);
-                            break;
-                        
-                        case 2:
-                            //Error Client Version rejected
-                            printf("ERROR: Client Version rejected\n");
-                            exit(EXIT_ERROR);
-                            break;
-                        
-                        case 3:
-                            //Error wrong GameID
-                            printf("ERROR: Wrong GameID\n");
-                            exit(EXIT_ERROR);
-                            break;
-                        
-                        case 4:
-                            //player Number rejected
-                            printf("ERROR: Wrong Playernumber\n");
-                            exit(EXIT_ERROR);
-                        default: 
-                            printf("ERROR Number %d: %s\n",serverMessageCount, serverMsg);
-                            exit(EXIT_ERROR);
-                            break;
-                    }
+                    perror(serverMsg);
                 }
                 //+ means the Server is giving a positive Response
                 else if(serverMsg[0] =='+'){
@@ -335,9 +306,10 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                    
                                     
                                     sscanf(linesOfServerMsg[i+j], "+ %d %[^\t] %d", &enemyPlayerNumber, enemyPlayerName, &isReady);
+                                    printf("This is the line: %s\n", linesOfServerMsg[i+j]);
 
                                         //isReady = enemyPlayerName[strlen(enemyPlayerName)-1];
-                                        enemyPlayerName [strlen(enemyPlayerName) -2] = '\0';
+                                        //int enemyPlayerNamelength = strlen(enemyPlayerName);
                                         //Filling the Struct with enemyPlayer info
                                         allPlayerInfo[j] = malloc(sizeof(PLAYERINFO));
                                         if(j == myPlayerNumber){
@@ -451,16 +423,20 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                             }
 
                             else if(strcmp(line, "+ QUIT") == 0){
+
+                                for(int i = 0; i <shm_gameInfo->countPlayer; i++){
+                                    if (shm_allPlayerInfo[i]->isWinner){
+                                        if (shm_allPlayerInfo[i+1]->isWinner){
+                                            printf("IT'S A DRAW!!!! WELL PLAYED EVERYONE\n");
+                                            break;
+                                        }
+                                        else if(shm_allPlayerInfo[i]->isWinner){
+                                             printf("PLAYER Number %d IS THE WINNER!!!! CONGRATULATIONS\n", shm_allPlayerInfo[i]->playerNumber);
+                                        }
+                                    }
+                                }
                                 
-                                if(shm_allPlayerInfo[0]->isWinner && !(shm_allPlayerInfo[1]->isWinner)){
-                                    printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", shm_allPlayerInfo[0]->playerName);
-                                }
-                                else if((!shm_allPlayerInfo[0]->isWinner) && shm_allPlayerInfo[1]->isWinner){
-                                    printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", shm_allPlayerInfo[1]->playerName);
-                                }
-                                else{
-                                    printf("IT'S A DRAW!!!! WELL PLAYED Player Number %d and Player Number %d\n", shm_allPlayerInfo[0]->playerNumber, shm_allPlayerInfo[1]->playerNumber);
-                                }
+                               
 
                                 if(close(epoll_fd)){
                                 perror("Failed to close epoll file descriptor.\n");

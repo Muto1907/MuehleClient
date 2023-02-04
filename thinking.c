@@ -42,7 +42,13 @@ void think(void* ptr_thinker, int tc_pipe[])
     GAMEINFO* game = (GAMEINFO*) ptr_thinker;
     PLAYERINFO *player = (PLAYERINFO *) (game+1);
     player[0].piece = (PIECEINFO *) (player+1);
-    player[1].piece = player[0].piece+game->piecesCount+1;
+
+
+    /*for(int i = 0; i < game->countPlayer; i++){
+        for (int j = 0; j < game->piecesCount; j++){
+            printf("player[%d].piece[%d] = %s\n", i, j, player[i].piece[j].pos);
+        }
+    }*/
 
     int rows = length(boardArr);
     int columns = length(boardArr[0]);

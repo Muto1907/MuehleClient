@@ -174,6 +174,10 @@ void finishSetup(int *initial_shm_ptr){
          //pointer to piece lists
         shm_allPlayerInfo[i]->piece = (PIECEINFO *) (shm_allPlayerInfo[i]+1+i);
     } 
+    //pointer to piece lists
+    for(int i = 0;i < gameInfo->countPlayer; i++){
+        shm_allPlayerInfo[i]->piece = (PIECEINFO *) (shm_allPlayerInfo[i]+1+i);
+    }
 
     printf("after Playerinfo\n");
     //PLAYERINFO *shm_allPlayerInfo[shm_gameInfo->countPlayer]; //pointer to player info; actual number of players taken into account
@@ -182,12 +186,7 @@ void finishSetup(int *initial_shm_ptr){
 
     //cleanup
 
-    //free memory for GAMEINFO *gameInfo and PLAYERINFO *allPlayerInfo
-    for(int i=0; i< gameInfo->countPlayer; i++){
-        free(allPlayerInfo[i]);
-    } 
-    free(gameInfo);
-    printf("after free(gameInfo)\n");
+
 } 
 
 
@@ -463,6 +462,12 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                 else printf("closing epoll\n");
                                 
                                 //detach shm here
+                                //free memory for GAMEINFO *gameInfo and PLAYERINFO *allPlayerInfo
+                                for(int i=0; i< gameInfo->countPlayer; i++){
+                                    free(allPlayerInfo[i]);
+                                } 
+                                free(gameInfo);
+                                printf("after free(gameInfo)\n");
                                 clearShm(shm_id);
                                 return 0;
 

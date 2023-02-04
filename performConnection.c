@@ -7,6 +7,7 @@
 #include <limits.h>
 #include <signal.h>
 #include <sys/epoll.h>
+#include <stdbool.h>
 
 #include "performConnection.h"
 #include "shmConnectorThinker.h"
@@ -21,7 +22,7 @@
 #define MAX_EVENTS 4
 
 	
-int firstTime = 1;
+bool firstTime = true;
 char serverMsg[BUF];
 char clientMsg[BUF];
 char** linesOfServerMsg;
@@ -172,8 +173,6 @@ void finishSetup(int *initial_shm_ptr){
     for(int i=1; i < gameInfo->countPlayer; i++){
         shm_allPlayerInfo[i]  = (PLAYERINFO *) shm_allPlayerInfo[i-1]+1; //pointing to address that is sizeof(PLAYERINFO) greater than shm_allPlayerInfo[0] 
         *shm_allPlayerInfo[i] = *allPlayerInfo[i]; 
-         //pointer to piece lists
-        shm_allPlayerInfo[i]->piece = (PIECEINFO *) (shm_allPlayerInfo[i]+1+i);
     } 
     //pointer to piece lists
     for(int i = 0;i < gameInfo->countPlayer; i++){
@@ -384,10 +383,10 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
 
                                 /*after prologue: all relevant data is availabe --> setup can be finished
                                 by creating actual shared memory segment and filling the structs*/
-                                if (firstTime == 1){
+                                if (firstTime){
                                 finishSetup(initial_shm);
                                 printf("after finishSetup\n");
-                                firstTime++;
+                                firstTime=false;
                                 }
                                 shm_gameInfo->piecesToBeCaptured = piecesToBeCaptured;
                             }
@@ -448,10 +447,10 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                             else if(strcmp(line, "+ QUIT") == 0){
                                 
                                 if(shm_allPlayerInfo[0]->isWinner && !(shm_allPlayerInfo[1]->isWinner)){
-                                    printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", allPlayerInfo[0]->playerName);
+                                    printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", shm_allPlayerInfo[0]->playerName);
                                 }
                                 else if((!shm_allPlayerInfo[0]->isWinner) && shm_allPlayerInfo[1]->isWinner){
-                                    printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", allPlayerInfo[1]->playerName);
+                                    printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", shm_allPlayerInfo[1]->playerName);
                                 }
                                 else{
                                     printf("IT'S A DRAW!!!! WELL PLAYED Player Number %d and Player Number %d\n", shm_allPlayerInfo[0]->playerNumber, shm_allPlayerInfo[1]->playerNumber);

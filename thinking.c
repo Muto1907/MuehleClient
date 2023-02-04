@@ -25,6 +25,16 @@ bool flagPrt= true;
 char buff[1024];
 int iter = 0;
 
+void printBoard() {
+    for(int ring = 0; ring < 3; ring ++) {
+        for(int spot = 0; spot < 8; spot ++) {
+            PIECEINFO currentPiece = boardArr[ring][spot];
+            printf("%s\t", currentPiece.pos);
+        }
+        printf("\n");
+    }
+}
+
 
 int countPieces(PLAYERINFO player, GAMEINFO *game) {
     int counter = 0;
@@ -87,7 +97,7 @@ void think(void* ptr_thinker, int tc_pipe[])
             //MovePhase begins here:
             strcpy(buff, makeAMove(&player[game->myPlayerNumber], iter));
             iter = (iter+1) %17;
-
+            printBoard();
             printf("this is the command: %s\n", buff);
         }
         else {//player has three pieces on board

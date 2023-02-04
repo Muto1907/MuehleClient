@@ -36,10 +36,10 @@ void printBoard() {
 }
 
 
-int countPieces(PLAYERINFO player, GAMEINFO *game) {
+int countPieces(PLAYERINFO *player, GAMEINFO *game) {
     int counter = 0;
     for(int i=0; i < game->piecesCount; i++) {
-        if(strcmp(player.piece[i].pos, "A") != 0 && strcmp(player.piece[i].pos, "C") != 0)
+        if(strcmp(player->piece[i].pos, "A") != 0 && strcmp(player->piece[i].pos, "C") != 0)
             counter++;
     }
 
@@ -50,9 +50,12 @@ void think(void* ptr_thinker, int tc_pipe[])
 {
     memset(buff, 0, 1024);
     GAMEINFO* game = (GAMEINFO*) ptr_thinker;
-    PLAYERINFO *player = (PLAYERINFO *) (game+1);
-    player[0].piece = (PIECEINFO *) (player+1);
+    PLAYERINFO *player[game->countPlayer];
+    player[0] = (PLAYERINFO *) (game+1);
+    player[1] = (PLAYERINFO *) (player[0]+1);
 
+    player[0]->piece = (PIECEINFO *) (player[1]+1);
+    player[1]->piece = (PIECEINFO *) (player[0]->piece+game->piecesCount);
 
     /*for(int i = 0; i < game->countPlayer; i++){
         for (int j = 0; j < game->piecesCount; j++){
@@ -73,21 +76,21 @@ void think(void* ptr_thinker, int tc_pipe[])
     {
         for(int i = 0; i < game->countPlayer; i++){
             for(int j = 0; j < game->piecesCount; j++){
-                mapCoord(player[i].piece[j]);
+                mapCoord(player[i]->piece[j]);
             }
         }
         dumpGameCurrent(player, game);
         printf("Thinker Pieces to be Captured shm: %d\n",game->piecesToBeCaptured);
 
         if(game->piecesToBeCaptured > 0){
-            strcpy(buff, captureAPiece(&player[game->enemyPlayerNumber], iter));
+            strcpy(buff, captureAPiece(player[game->enemyPlayerNumber], iter));
             iter = (iter+1) %17;
         }
         //check if last piece is still Available. If not setPhase is over
 
-        else if(strcmp(player[game->myPlayerNumber].piece[8].pos, "A") == 0){
+        else if(strcmp(player[game->myPlayerNumber]->piece[8].pos, "A") == 0){
             //setPhase begins here:
-            strcpy(buff, setPiece (player[game->myPlayerNumber].piece, iter));
+            strcpy(buff, setPiece (player[game->myPlayerNumber]->piece, iter));
             iter = (iter+1) %17;
 
         }
@@ -95,14 +98,14 @@ void think(void* ptr_thinker, int tc_pipe[])
             if (flagPrt)
 			flagPrt = false;
             //MovePhase begins here:
-            strcpy(buff, makeAMove(&player[game->myPlayerNumber], iter));
+            strcpy(buff, makeAMove(player[game->myPlayerNumber], iter));
             iter = (iter+1) %17;
             printBoard();
             printf("this is the command: %s\n", buff);
         }
         else {//player has three pieces on board
             //JumpPhase begins here:
-            strcpy(buff, jump(&player[game->myPlayerNumber], iter));
+            strcpy(buff, jump(player[game->myPlayerNumber], iter));
             iter = (iter+1) %17;
 
             printf("Jumpcommand: %s\n", buff);
@@ -160,7 +163,7 @@ static int MapPosition(char* pos)
     return res;
 }
 
-void dumpGameCurrent(PLAYERINFO* player, GAMEINFO* game)
+void dumpGameCurrent(PLAYERINFO* player[], GAMEINFO* game)
 {
     int numPlayer = game->countPlayer;
 
@@ -172,7 +175,7 @@ void dumpGameCurrent(PLAYERINFO* player, GAMEINFO* game)
     for (i=0;i<numPlayer;i++)
         for (j=0;j<9;j++)
         {
-            int pos = MapPosition(player[i].piece[j].pos);
+            int pos = MapPosition(player[i]->piece[j].pos);
             if (pos >= 0)
             {
                 board[boardposY[pos]][boardposX[pos]  ] = '(';

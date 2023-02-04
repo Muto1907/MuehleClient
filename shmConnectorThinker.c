@@ -13,7 +13,7 @@ int createShm(GAMEINFO *gameInfo){
 
     int shm_id;
 
-    if((shm_id = shmget(IPC_PRIVATE, sizeof(GAMEINFO)+(gameInfo->countPlayer)*sizeof(PLAYERINFO)+(gameInfo->countPlayer)*gameInfo->piecesCount*sizeof(PIECEINFO), IPC_CREAT | 0666)) == -1) {
+    if((shm_id = shmget(IPC_PRIVATE, sizeof(GAMEINFO)+(gameInfo->countPlayer)*sizeof(PLAYERINFO)+(gameInfo->countPlayer)*(gameInfo->piecesCount)*sizeof(PIECEINFO), IPC_CREAT | 0666)) == -1) {
 
         errFunctionFailed("shm creation");
         return EXIT_ERROR;

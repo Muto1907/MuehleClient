@@ -158,6 +158,8 @@ void finishSetup(int *initial_shm_ptr){
 
     void *shmPtr_connector;
     shmPtr_connector = attachShm(shm_id);
+    int sizeShm = sizeof(GAMEINFO)+(gameInfo->countPlayer)*sizeof(PLAYERINFO)+(gameInfo->countPlayer)*(gameInfo->piecesCount)*sizeof(PIECEINFO);
+    printf("size of shm: %d\n", sizeShm);
     
 
     //creating pointer to addresses in actual shm segment where game info and player infos are stored respectively
@@ -169,14 +171,18 @@ void finishSetup(int *initial_shm_ptr){
 
     //pointer to player info array
     shm_allPlayerInfo[0] = (PLAYERINFO *) (shm_gameInfo+1); //pointing to address after shm_gameInfo
+    printf("Address for shm_allPlayerInfo[0]: %p\n", shm_allPlayerInfo[0]);
     *shm_allPlayerInfo[0] = *allPlayerInfo[0]; 
     for(int i=1; i < gameInfo->countPlayer; i++){
         shm_allPlayerInfo[i]  = (PLAYERINFO *) shm_allPlayerInfo[i-1]+1; //pointing to address that is sizeof(PLAYERINFO) greater than shm_allPlayerInfo[0] 
+        printf("Address for shm_allPlayerInfo[%d]: %p\n", i, shm_allPlayerInfo[i]);
         *shm_allPlayerInfo[i] = *allPlayerInfo[i]; 
     } 
+    PIECEINFO * firstFreeAddress = (PIECEINFO *) (shm_allPlayerInfo[gameInfo->countPlayer-1]+1);
     //pointer to piece lists
     for(int i = 0;i < gameInfo->countPlayer; i++){
-        shm_allPlayerInfo[i]->piece = (PIECEINFO *) (shm_allPlayerInfo[i]+1+i);
+        shm_allPlayerInfo[i]->piece = (PIECEINFO *) (firstFreeAddress+i*(gameInfo->piecesCount));
+        printf("Address for shm_allPlayerInfo[%d]->piece: %p\n", i, shm_allPlayerInfo[i]->piece);
     }
 
     printf("after Playerinfo\n");

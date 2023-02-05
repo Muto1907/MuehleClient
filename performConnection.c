@@ -270,10 +270,12 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                 if(strcmp(gameKindName, cfg->gamename) != 0){
                                     perror("Error: Wrong Game selected!\n");
                                 }
+                                if(linesOfServerMsg[i+1] != NULL){
                                 strcpy(gameName, linesOfServerMsg[i+1]);
                               
                                 
                                 printf("SERVER: Playing %s\nSERVER: GameName: %s\n", gameKindName,gameName); 
+                                }
                                 
                                 //Sending empty Playernumber means Server decides which number we get. 
                                 if (getoptPlayerNum > 0){
@@ -450,9 +452,6 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                 //clearShm(shm_id);
                                 return 0;
 
-                            }
-                            else{
-                                printf("Not expected: %s\n", line);
                             }
                         
                         }

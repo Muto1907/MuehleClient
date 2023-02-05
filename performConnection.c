@@ -192,7 +192,9 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
     //char moveCommand [BUF];
 
 	// create Client message for gameID
-	char formatgameID [18] = "ID ";
+	char formatgameID [24];
+    memset(formatgameID, 0, 24);
+    strcpy(formatgameID, "ID ");
 	strcat(formatgameID, gameID);
 	strcat(formatgameID, "\n");
 
@@ -266,7 +268,7 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                             //third and fourth Server-Message: Gamekindname and GameName
                             else if(sscanf(line, "+ PLAYING %s",gameKindName) == 1){
                                 if(strcmp(gameKindName, cfg->gamename) != 0){
-                                    printf("Error: Wrong Game selected!\n");
+                                    perror("Error: Wrong Game selected!\n");
                                 }
                                 strcpy(gameName, linesOfServerMsg[i+1]);
                               
@@ -386,7 +388,6 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
 
                                 kill(shm_gameInfo->idThinker, SIGUSR1);
                                 printf("SERVER: %s\n", serverMsg);
-                                //TEST
 
 
                             }
@@ -449,6 +450,9 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                 //clearShm(shm_id);
                                 return 0;
 
+                            }
+                            else{
+                                printf("Not expected: %s\n", line);
                             }
                         
                         }

@@ -32,5 +32,3 @@ void traceMsgRcvd(char* buf)
 {
     printf("Message received: [%s]\n", buf);
 }
-
-// printf("  " __FILE__ " %d \n",__LINE__ );

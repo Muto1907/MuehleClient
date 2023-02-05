@@ -27,7 +27,6 @@ char *captureAPiece(PLAYERINFO *enemyPlayer, int iter) {
         int randPiece = (rand()+3*iter+1) %9;
         iter++;
         PIECEINFO currentPiece = enemyPlayer->piece[randPiece];
-        printf("Position von Spielstein %d, Position: %s \n", currentPiece.piecenum, enemyPlayer->piece[randPiece].pos);
 
         //get corresponding board position for the currentPiece
         int* pos = mapCoord(currentPiece);

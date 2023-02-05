@@ -40,7 +40,6 @@ char *makeAMove(PLAYERINFO *currentPlayer, int iter)
         PIECEINFO currentPiece = currentPlayer->piece[randPiece];
 
         strcat(moveSeq, currentPiece.pos);
-        printf("currentPiece.pos: %s\n", currentPiece.pos);
         strcat(moveSeq, ":");
 
         // get corresponding board position for the currentPiece
@@ -48,8 +47,6 @@ char *makeAMove(PLAYERINFO *currentPlayer, int iter)
         int coordR = pos[0];
         int coordS = pos[1];
 
-
-        printf("Position von Spielstein %d, Position: %s, entspricht: %d%d\n", currentPiece.piecenum, currentPlayer->piece[randPiece].pos, coordR, coordS);
 
         /* forall neighbouring places: check if free
         if so: move there and leave function

@@ -25,15 +25,7 @@ bool flagPrt= true;
 char buff[1024];
 int iter = 0;
 
-void printBoard() {
-    for(int ring = 0; ring < 3; ring ++) {
-        for(int spot = 0; spot < 8; spot ++) {
-            PIECEINFO currentPiece = boardArr[ring][spot];
-            printf("%s\t", currentPiece.pos);
-        }
-        printf("\n");
-    }
-}
+
 
 
 int countPieces(PLAYERINFO *player, GAMEINFO *game) {
@@ -57,11 +49,6 @@ void think(void* ptr_thinker, int tc_pipe[])
     player[0]->piece = (PIECEINFO *) (player[1]+1);
     player[1]->piece = (PIECEINFO *) (player[0]->piece+game->piecesCount);
 
-    /*for(int i = 0; i < game->countPlayer; i++){
-        for (int j = 0; j < game->piecesCount; j++){
-            printf("player[%d].piece[%d] = %s\n", i, j, player[i].piece[j].pos);
-        }
-    }*/
 
     int rows = length(boardArr);
     int columns = length(boardArr[0]);
@@ -80,7 +67,6 @@ void think(void* ptr_thinker, int tc_pipe[])
             }
         }
         dumpGameCurrent(player, game);
-        printf("Thinker Pieces to be Captured shm: %d\n",game->piecesToBeCaptured);
 
         if(game->piecesToBeCaptured > 0){
             strcpy(buff, captureAPiece(player[game->enemyPlayerNumber], iter));
@@ -100,15 +86,12 @@ void think(void* ptr_thinker, int tc_pipe[])
             //MovePhase begins here:
             strcpy(buff, makeAMove(player[game->myPlayerNumber], iter));
             iter = (iter+1) %17;
-            printBoard();
-            printf("this is the command: %s\n", buff);
         }
         else {//player has three pieces on board
             //JumpPhase begins here:
             strcpy(buff, jump(player[game->myPlayerNumber], iter));
             iter = (iter+1) %17;
 
-            printf("Jumpcommand: %s\n", buff);
         }
             // thinker writes to pipe
         if(write(tc_pipe[1], buff, strlen(buff) + 1) == -1){
@@ -264,7 +247,6 @@ bool isFreeBoardArr(int posR, int posS) {
         posS += 8;
     }
     PIECEINFO currentPiece = boardArr[posR][posS];
-    printf("isFreeBoardArr: position [%d][%d] with value: %s\n", posR, posS, currentPiece.pos);
 	if(strcmp(currentPiece.pos, dummy.pos) == 0)
 		free = true;
 	return free;

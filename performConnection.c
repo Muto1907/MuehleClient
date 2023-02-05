@@ -106,7 +106,7 @@ void sendMsgToServer(int fileDescriptor, char* msgInput) {
 	if(send(fileDescriptor, clientMsg, strlen(clientMsg), 0) < 0){
 		printf("Error Client message could not be sent.\n");
 	} else {
-		printf("Client: %s", clientMsg);
+		printf("CLIENT: %s", clientMsg);
 	}
 	// clean up clientMsg for later use
 	memset(clientMsg, 0, BUF);
@@ -153,13 +153,11 @@ void finishSetup(int *initial_shm_ptr){
     
     //initial_shm_ptr points to shm_id
     *initial_shm_ptr = shm_id;
-    printf("In performConnection: shm_id %d\n",*initial_shm_ptr);
     
 
     void *shmPtr_connector;
     shmPtr_connector = attachShm(shm_id);
-    int sizeShm = sizeof(GAMEINFO)+(gameInfo->countPlayer)*sizeof(PLAYERINFO)+(gameInfo->countPlayer)*(gameInfo->piecesCount)*sizeof(PIECEINFO);
-    printf("size of shm: %d\n", sizeShm);
+
     
 
     //creating pointer to addresses in actual shm segment where game info and player infos are stored respectively
@@ -167,30 +165,22 @@ void finishSetup(int *initial_shm_ptr){
     //pointer to game info
     shm_gameInfo = (GAMEINFO *) shmPtr_connector;
     *shm_gameInfo = *gameInfo;
-    printf("pointer to gameInfo%d\n", shm_gameInfo->countPlayer);
+
 
     //pointer to player info array
     shm_allPlayerInfo[0] = (PLAYERINFO *) (shm_gameInfo+1); //pointing to address after shm_gameInfo
-    printf("Address for shm_allPlayerInfo[0]: %p\n", shm_allPlayerInfo[0]);
+
     *shm_allPlayerInfo[0] = *allPlayerInfo[0]; 
     for(int i=1; i < gameInfo->countPlayer; i++){
         shm_allPlayerInfo[i]  = (PLAYERINFO *) shm_allPlayerInfo[i-1]+1; //pointing to address that is sizeof(PLAYERINFO) greater than shm_allPlayerInfo[0] 
-        printf("Address for shm_allPlayerInfo[%d]: %p\n", i, shm_allPlayerInfo[i]);
         *shm_allPlayerInfo[i] = *allPlayerInfo[i]; 
     } 
     PIECEINFO * firstFreeAddress = (PIECEINFO *) (shm_allPlayerInfo[gameInfo->countPlayer-1]+1);
     //pointer to piece lists
     for(int i = 0;i < gameInfo->countPlayer; i++){
         shm_allPlayerInfo[i]->piece = (PIECEINFO *) (firstFreeAddress+i*(gameInfo->piecesCount));
-        printf("Address for shm_allPlayerInfo[%d]->piece: %p\n", i, shm_allPlayerInfo[i]->piece);
     }
 
-    printf("after Playerinfo\n");
-    //PLAYERINFO *shm_allPlayerInfo[shm_gameInfo->countPlayer]; //pointer to player info; actual number of players taken into account
-    
-
-
-    //cleanup
 
 
 } 
@@ -318,7 +308,7 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                             else{
                                                 sscanf(linesOfServerMsg[i+j+1], "+ %d %[^\t] %d", &enemyPlayerNumber, enemyPlayerName, &isReady);
                                             }
-                                        printf("This is the line: %s\n", linesOfServerMsg[i+j]);
+                                
 
                                             enemyPlayerName[strlen(enemyPlayerName) -2] = '\0';
                                             set_EnemyPlayerParam(allPlayerInfo[j]);
@@ -330,7 +320,6 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                             else{
                                                 printf("SERVER: Player Number %d (%s) isn't ready yet!\n", enemyPlayerNumber, enemyPlayerName);
                                             }
-                                            printf("So far: MyplayerNumber = %d\nMyPlayerName = %s\nEnemyPlayerNumber = %d\nEnemyPlayerName = %s\nEnemyPlayerReady:%d\n",myPlayerNumber,myPlayerName,enemyPlayerNumber,enemyPlayerName,isReady);
                                         }
                                     
                                 }
@@ -347,18 +336,17 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                             }
                             
                             else if(sscanf(line,"+ MOVE %d", &maxTurnTime) == 1){
-                                printf("Server: Time to think: %d ms.\n", maxTurnTime);
+                                printf("SERVER: Time to think: %d ms.\n", maxTurnTime);
                             }
                                 
 
                             else  if(sscanf(line,"+ CAPTURE %d", &piecesToBeCaptured) == 1){
-                                printf("Server: Pieces to be captured: %d\n", piecesToBeCaptured);
+                                printf("SERVER: Pieces to be captured: %d\n", piecesToBeCaptured);
                                 gameInfo->piecesToBeCaptured = piecesToBeCaptured;
-                                printf("Pieces to be Captured shm: %d\n",gameInfo->piecesToBeCaptured);
                             }
 
                             else  if(sscanf(line,"+ PIECELIST %d,%d", &playerCount, &piecesCount) == 2){
-                                printf("Server: Number of pieces for each Player: %d\n", piecesCount);
+                                printf("SERVER: Number of pieces for each Player: %d\n", piecesCount);
                                 gameInfo->piecesCount = piecesCount;
 
 
@@ -366,7 +354,6 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                 by creating actual shared memory segment and filling the structs*/
                                 if (firstTime){
                                 finishSetup(initial_shm);
-                                printf("after finishSetup\n");
                                 firstTime=false;
                                 }
                                 shm_gameInfo->piecesToBeCaptured = piecesToBeCaptured;
@@ -418,7 +405,6 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                             else if(sscanf(line, "+ PLAYER%dWON %s",&playerNumber, winner) == 2){
 
                                 if(strcmp(winner, "Yes") == 0){
-                                    printf("PLAYER%dWON Won = %s\n",playerNumber, winner);
                                     shm_allPlayerInfo[playerNumber]->isWinner = true;
 
                                 }
@@ -453,8 +439,6 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                 perror("Failed to close epoll file descriptor.\n");
                                 return -1;
                                 }
-
-                                else printf("closing epoll\n");
                                 
                                 //detach shm here
                                 //free memory for GAMEINFO *gameInfo and PLAYERINFO *allPlayerInfo
@@ -462,7 +446,6 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                     free(allPlayerInfo[i]);
                                 } 
                                 free(gameInfo);
-                                printf("after free(gameInfo)\n");
                                 //clearShm(shm_id);
                                 return 0;
 

@@ -24,11 +24,7 @@
 #define MAX_EVENTS 4
 #define READ_SIZE 80
 
-/*
-#define GAMEKINDNAME "NMMorris"
-#define PORTNUMBER 1357
-#define HOSTNAME "sysprak.priv.lab.nm.ifi.lmu.de"
-*/
+
 
 void *shmPtr_thinker;
 int *initial_shm_ptr;
@@ -101,7 +97,6 @@ int getSocketDescriptorAndConnect(PARAM_CONFIG_T* cfg){
 
 void signalHandler(int signal){
 
-    printf("signalHandler %d\n",signal);
     if(signal == SIGUSR1){
 
         //Attaching actual shared memory segment with id *initial_shm_ptr for internal communication with Connector
@@ -155,7 +150,7 @@ int main(int argc,char**argv){
     }
 
     LoadConfigParam(&config,configFile);
-    DumpConfig(&config);
+    //DumpConfig(&config);
 
     if(strlen(game_id) != 13){
         errPrintInvalidParam("Game-ID");
@@ -212,12 +207,10 @@ int main(int argc,char**argv){
     // Thinker Process starts here
     //close reading pipe for the thinker
     close(tc_pipe[0]);
-    printf("Thinker after fork, shm_id %d\n",*initial_shm_ptr);
+
 
     //Configure Signalhandling
     signal(SIGUSR1, signalHandler);
-    printf("Thinker: registered handler SIGUSR1\n");
-
 
     // avoids orphan and zombie process, wait for child to die
     while(wait(NULL) > 0){

@@ -320,17 +320,17 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                             }
                                         printf("This is the line: %s\n", linesOfServerMsg[i+j]);
 
-                                        enemyPlayerName[strlen(enemyPlayerName) -2] = '\0';
-                                        set_EnemyPlayerParam(allPlayerInfo[j]);
+                                            enemyPlayerName[strlen(enemyPlayerName) -2] = '\0';
+                                            set_EnemyPlayerParam(allPlayerInfo[j]);
                                         
 
-                                        if(isReady == 1){
-                                            printf("SERVER: Player Number %d (%s) is ready!\n", enemyPlayerNumber, enemyPlayerName);
-                                        }
-                                        else{
-                                            printf("SERVER: Player Number %d (%s) isn't ready yet!\n", enemyPlayerNumber, enemyPlayerName);
-                                        }
-                                        printf("So far: MyplayerNumber = %d\nMyPlayerName = %s\nEnemyPlayerNumber = %d\nEnemyPlayerName = %s\nEnemyPlayerReady:%d\n",myPlayerNumber,myPlayerName,enemyPlayerNumber,enemyPlayerName,isReady);
+                                            if(isReady == 1){
+                                                printf("SERVER: Player Number %d (%s) is ready!\n", enemyPlayerNumber, enemyPlayerName);
+                                            }
+                                            else{
+                                                printf("SERVER: Player Number %d (%s) isn't ready yet!\n", enemyPlayerNumber, enemyPlayerName);
+                                            }
+                                            printf("So far: MyplayerNumber = %d\nMyPlayerName = %s\nEnemyPlayerNumber = %d\nEnemyPlayerName = %s\nEnemyPlayerReady:%d\n",myPlayerNumber,myPlayerName,enemyPlayerNumber,enemyPlayerName,isReady);
                                         }
                                     
                                 }
@@ -429,13 +429,21 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
 
                                 for(int i = 0; i <shm_gameInfo->countPlayer; i++){
                                     if (shm_allPlayerInfo[i]->isWinner){
-                                        if (shm_allPlayerInfo[i+1]->isWinner){
+                                        if((i + 1) == shm_gameInfo->countPlayer){
+                                            if(shm_allPlayerInfo[i]->isWinner){
+                                                printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", shm_allPlayerInfo[i]->playerName);
+                                            }
+                                        }
+                                        else{
+                                            if (shm_allPlayerInfo[i+1]->isWinner){
                                             printf("IT'S A DRAW!!!! WELL PLAYED EVERYONE\n");
                                             break;
+                                            }
+                                            else{
+                                                printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", shm_allPlayerInfo[i]->playerName);
+                                            }
                                         }
-                                        else if(shm_allPlayerInfo[i]->isWinner){
-                                             printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", shm_allPlayerInfo[i]->playerName);
-                                        }
+                                        
                                     }
                                 }
                                 

@@ -304,21 +304,25 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                 printf("SERVER: Number of participating Players: %d\n", playerCount);
                                 for(int j = 0; j < playerCount; j++){
                                    
-                                    
-                                    sscanf(linesOfServerMsg[i+j], "+ %d %[^\t] %d", &enemyPlayerNumber, enemyPlayerName, &isReady);
-                                    printf("This is the line: %s\n", linesOfServerMsg[i+j]);
 
-                                        //isReady = enemyPlayerName[strlen(enemyPlayerName)-1];
-                                        //int enemyPlayerNamelength = strlen(enemyPlayerName);
                                         //Filling the Struct with enemyPlayer info
                                         allPlayerInfo[j] = malloc(sizeof(PLAYERINFO));
                                         if(j == myPlayerNumber){
                                             set_MyPlayerParam(allPlayerInfo[myPlayerNumber]);
                                             continue;
                                         }
-                                        else{
+                                        else{       
+                                            if(myPlayerNumber == 0){
+                                                sscanf(linesOfServerMsg[i+j], "+ %d %[^\t] %d", &enemyPlayerNumber, enemyPlayerName, &isReady);
+                                            }                                         
+                                            else{
+                                                sscanf(linesOfServerMsg[i+j+1], "+ %d %[^\t] %d", &enemyPlayerNumber, enemyPlayerName, &isReady);
+                                            }
+                                        printf("This is the line: %s\n", linesOfServerMsg[i+j]);
+
+                                        enemyPlayerName[strlen(enemyPlayerName) -2] = '\0';
                                         set_EnemyPlayerParam(allPlayerInfo[j]);
-                                        }
+                                        
 
                                         if(isReady == 1){
                                             printf("SERVER: Player Number %d (%s) is ready!\n", enemyPlayerNumber, enemyPlayerName);
@@ -327,12 +331,11 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                             printf("SERVER: Player Number %d (%s) isn't ready yet!\n", enemyPlayerNumber, enemyPlayerName);
                                         }
                                         printf("So far: MyplayerNumber = %d\nMyPlayerName = %s\nEnemyPlayerNumber = %d\nEnemyPlayerName = %s\nEnemyPlayerReady:%d\n",myPlayerNumber,myPlayerName,enemyPlayerNumber,enemyPlayerName,isReady);
-
+                                        }
                                     
                                 }
 
                                 //filling the structs
-
                                 //local gameInfo only for creation of actual shm segment
                                 gameInfo = malloc(sizeof(GAMEINFO));
                             }
@@ -431,7 +434,7 @@ int performConnection(int fileDescriptor,int getoptPlayerNum, char* gameID, PARA
                                             break;
                                         }
                                         else if(shm_allPlayerInfo[i]->isWinner){
-                                             printf("PLAYER Number %d IS THE WINNER!!!! CONGRATULATIONS\n", shm_allPlayerInfo[i]->playerNumber);
+                                             printf("%s IS THE WINNER!!!! CONGRATULATIONS\n", shm_allPlayerInfo[i]->playerName);
                                         }
                                     }
                                 }

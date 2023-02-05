@@ -12,14 +12,14 @@
 
 //initialising return string
 char captureSeq[1024];
-bool partOfMill = false;
+//bool partOfMill = false;
 
 char *captureAPiece(PLAYERINFO *enemyPlayer, int iter) {
     time_t now = time(NULL);
     srand(now);
 
     while(true) { //try different pieces until current piece is not part of a mill
-        partOfMill = false;
+        //partOfMill = false;
         memset(captureSeq, 0, 1024);
         strcpy(captureSeq, "PLAY ");
 
@@ -34,8 +34,8 @@ char *captureAPiece(PLAYERINFO *enemyPlayer, int iter) {
         int coordR = pos[0];
         int coordS = pos[1];
 
-        //check if chosen piece is part of a mill and cannot be captured
-        if(strcmp(currentPiece.pos, "A") != 0 && strcmp(currentPiece.pos, "C") != 0) {
+        //optional for different game rules: check if chosen piece is part of a mill and cannot be captured
+        /* if(strcmp(currentPiece.pos, "A") != 0 && strcmp(currentPiece.pos, "C") != 0) {
             if(coordS % 2 == 1) { //at least one neighbour is on a different ring)
                 if(!isFreeBoardArr(coordR, (coordS-1) %8) && getPlayernumberForPiece(coordR, (coordS-1) %8) == enemyPlayer->playerNumber 
                 && !isFreeBoardArr(coordR, (coordS+1) %8) && getPlayernumberForPiece(coordR, (coordS+1) %8) == enemyPlayer->playerNumber) { //mill on same ring
@@ -57,10 +57,10 @@ char *captureAPiece(PLAYERINFO *enemyPlayer, int iter) {
                 }
             }
         }
-        else continue;
+        else continue; */
 
         //append position of currentPiece to captureSeq and terminate function if piece is not part of a mill
-        if(!partOfMill) {
+        if(strcmp(currentPiece.pos, "A") != 0 && strcmp(currentPiece.pos, "C") != 0/*!partOfMill*/) {
             strcat(captureSeq, remapCoordinates(coordR, coordS));
             strcat(captureSeq, "\n");
             return captureSeq;

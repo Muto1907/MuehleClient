@@ -91,7 +91,6 @@ Both instances connect to the same Game‑ID and play autonomously until a win o
 
 bash ./sysprak-client -g \<GAME\_ID> -p 1 -f test.conf
 
-````
 
 ## 🤝 Contributing
 
@@ -100,7 +99,7 @@ bash ./sysprak-client -g \<GAME\_ID> -p 1 -f test.conf
 ```bash
 git clone https://github.com/Muto1907/MuehleClient.git
 cd MuehleClient
-````
+```
 
 ### Build variants
 

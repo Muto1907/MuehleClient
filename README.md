@@ -1,92 +1,136 @@
-# Mühle
+# Milly
 
+> \*\*C, POSIX, LINUX \*\*— A real‑time, tournament‑grade Nine Men’s Morris (Neunermühle) client that plays autonomously against a university‑hosted game server.
 
+## Goals and Purpose
 
-## Getting started
+Our four‑person team built Milly during the LMU Systems Programming practicum as our capstone in low‑level, performance‑critical software. The goal: beat human and bot opponents under hard real‑time constraints while respecting a strict wire protocol. Everything—from network handshake to move generation—runs in C with zero external dependencies.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Highlights
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+- **Two‑process architecture**\
+  *Connector* (network I/O) ↔ *Thinker* (game AI) using POSIX shared memory, unnamed pipes and `SIGUSR1` for wake‑ups\
+  Keeps the critical path for server communication tight while letting the AI think in parallel.
 
-## Add your files
+- **Inter‑process communication — shared memory, pipe, signal**\
+  Two lightweight Unix primitives keep the twin processes in sync:
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+  - **Shared memory** – Connector writes the board into a common memory page; Thinker reads it instantly, no copying required.
+  - **Unnamed pipe** – Thinker hands its chosen move back through a one‑way pipe; Connector relays it to the server.
+  - **Custom Signal** – A small “tap on the shoulder” that wakes Thinker when a fresh board arrives, avoiding busy‑waiting.
 
+- **Event‑driven socket layer**\
+  Uses `epoll_wait(2)` to multiplex between the server’s TCP socket and the Thinker pipe. The Connector:
+
+  - completes a three‑step handshake (`VERSION`, `ID`, `PLAYER`);
+  - parses ` `‑terminated protocol messages with a small state machine;
+  - enforces per‑message deadlines so a slow server never stalls the client.
+
+- **Clock‑aware move generator**\
+  Selects a legal move at random (deterministic seed) and writes it back just before the server’s deadline.
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Build tools:** GCC ≥ 9 and `make`
+- **Platform:** Linux or any POSIX‑compatible OS with glibc
+- **Optional dev tools:** Valgrind, GDB
+
+### Build from source
+
+```bash
+git clone https://github.com/Muto1907/MuehleClient.git
+cd MuehleClient
+make            # builds ./sysprak-client
 ```
-cd existing_repo
-git remote add origin https://gitlab.lrz.de/gruppe-12/muehle.git
-git branch -M main
-git push -uf origin main
+
+### Join a live game
+
+```bash
+./sysprak-client -g <GAME_ID> -p <1|2>
 ```
 
-## Integrate with your tools
+- `-g` – the 13‑digit game ID assigned by the server.
+- `-p` – your preferred player number (`1` or `2`).
 
-- [ ] [Set up project integrations](https://gitlab.lrz.de/gruppe-12/muehle/-/settings/integrations)
+The hostname and port are read from **client.conf** (defaults to `sysprak.priv.lab.nm.ifi.lmu.de:1357`).
 
-## Collaborate with your team
+> **Note:** The server is only reachable from within the Münchner Wissenschaftsnetz (MWN). If you're off‑campus, connect via the LRZ campus VPN before running the client.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+### Use a custom config (optional)
 
-## Test and Deploy
+```bash
+./sysprak-client -g <GAME_ID> -p 1 -f test.conf
+```
 
-Use the built-in continuous integration in GitLab.
+## 🕹️ Usage
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+### Play against the bot in your browser
 
-***
+1. Open the LMU Mühle web interface: [http://sysprak.priv.lab.nm.ifi.lmu.de](http://sysprak.priv.lab.nm.ifi.lmu.de) *(MWN/VPN required).*
+2. Create a new match and note the 13‑digit **Game‑ID**.
+3. In a terminal, start the client for one side:
+   ```bash
+   ./sysprak-client -g <GAME_ID> -p 1
+   ```
+4. Join the same match in the browser as the opposite player and make moves manually—the client replies in real time.
 
-# Editing this README
+### Let two bots battle each other
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+```bash
+# terminal 1
+./sysprak-client -g <GAME_ID> -p 1
+# terminal 2
+./sysprak-client -g <GAME_ID> -p 2
+```
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+Both instances connect to the same Game‑ID and play autonomously until a win or draw.
 
-## Name
-Choose a self-explaining name for your project.
+> Every board update is rendered as ASCII art in each client’s console, so you can watch the game unfold directly in the terminal.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+bash ./sysprak-client -g \<GAME\_ID> -p 1 -f test.conf
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+````
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+## 🤝 Contributing
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+### Clone the repo
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+```bash
+git clone https://github.com/Muto1907/MuehleClient.git
+cd MuehleClient
+````
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+### Build variants
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+```bash
+make         # release binary (./sysprak-client)
+make debug   # adds -g for GDB-friendly symbols
+```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+### Memory & static analysis (recommended)
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+```bash
+valgrind --leak-check=full ./sysprak-client -g <GAME_ID> -p 1
+```
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### Clean up artefacts
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+```bash
+make clean
+```
 
-## License
-For open source projects, say how it is licensed.
+### Submit a pull request
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Fork the repository and open a PR against **main**. Please:
+
+- keep `-Wall -Werror` clean (no warnings),
+- run the Valgrind smoke‑test above,
+- describe *why* the change is useful.
+
+---
+
+
+> Built with 💙 at LMU Munich, 2023.
+

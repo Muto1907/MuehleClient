@@ -94,6 +94,13 @@ bash ./sysprak-client -g \<GAME\_ID> -p 1 -f test.conf
 
 ## 🤝 Contributing
 
+### Contributers
+
+- Renate
+- Meltem
+- Charlotte
+- Mahmut
+
 ### Clone the repo
 
 ```bash

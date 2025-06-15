@@ -94,7 +94,7 @@ bash ./sysprak-client -g \<GAME\_ID> -p 1 -f test.conf
 
 ## 🤝 Contributing
 
-### Contributers
+### Contributors
 
 - Renate
 - Meltem

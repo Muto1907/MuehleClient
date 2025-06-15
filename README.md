@@ -1,6 +1,6 @@
 # Milly
 
-> \*\*C, POSIX, LINUX \*\*— A real‑time, tournament‑grade Nine Men’s Morris (Neunermühle) client that plays autonomously against a university‑hosted game server.
+**C, POSIX, LINUX:** A real‑time, tournament‑grade Nine Men’s Morris (Neunermühle) client that plays autonomously against a university‑hosted game server.
 
 ## Goals and Purpose
 
